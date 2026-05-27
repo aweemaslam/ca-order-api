@@ -1,0 +1,60 @@
+# Build directories
+build/
+dist/
+target/
+out/
+
+# Gradle cache
+.gradle/
+gradle-app.setting
+gradlew.bat.local
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Compiled classes
+*.class
+*.jar
+*.war
+*.ear
+!gradle-wrapper.jar
+
+# OS files
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+*.bak
+
+# Log files
+*.log
+logs/
+
+# Runtime files
+.env
+.env.local
+
+# Maven
+.m2/
+
+# Node (if applicable)
+node_modules/
+npm-debug.log
+
+# Test reports (build artifacts)
+/reports/
+jacoco.exec
+
+# Temporary files
+*.tmp
+.classpath
+.project
+.settings/
+
