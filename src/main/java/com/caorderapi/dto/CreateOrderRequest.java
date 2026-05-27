@@ -18,8 +18,5 @@ public record CreateOrderRequest(
     @NotEmpty(message = "items cannot be empty")
     List<@Valid CreateOrderItemRequest> items
 ) {
-    public CreateOrderRequest(String customerEmail, List<CreateOrderItemRequest> items) {
-        this(null, customerEmail, items);
-    }
 }
 

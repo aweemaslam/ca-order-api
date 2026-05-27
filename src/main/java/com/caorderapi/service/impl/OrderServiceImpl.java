@@ -12,7 +12,6 @@ import com.caorderapi.feign.port.FulfillmentPort;
 import com.caorderapi.feign.port.PaymentPort;
 import com.caorderapi.model.Orders;
 import com.caorderapi.model.OutboxEventEntity;
-import com.caorderapi.repository.OrderItemStatusRepository;
 import com.caorderapi.repository.OrderRepository;
 import com.caorderapi.repository.OutboxEventRepository;
 import com.caorderapi.service.IOrderInventoryService;
@@ -144,10 +143,8 @@ public class OrderServiceImpl implements IOrderService {
                 saveOutbox(AggregateType.ORDER, orderId.toString(), OutboxEventType.STOCK_RELEASE_REQUESTED,
                         "{\"reason\":\"order_cancelled\"}");
             }
-            default -> {
-                throw new InvalidOrderStateException("Invalid Order Status, cannot transition to %s status"
-                        .formatted(targetStatus));
-            }
+            default -> throw new InvalidOrderStateException("Invalid Order Status, cannot transition to %s status"
+                    .formatted(targetStatus));
         }
 
         order.setStatus(orderStatusPolicyService.getOrderStatus(nextStatusCode));

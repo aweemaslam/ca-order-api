@@ -1,6 +1,7 @@
 package com.caorderapi.service.impl;
 
 import com.caorderapi.dto.CreateOrderItemRequest;
+import com.caorderapi.dto.InventoryReservationBatch;
 import com.caorderapi.enums.InventoryReservationStatus;
 import com.caorderapi.exception.InsufficientStockException;
 import com.caorderapi.exception.ResourceNotFoundException;
@@ -9,13 +10,10 @@ import com.caorderapi.model.OrderItemEntity;
 import com.caorderapi.model.Orders;
 import com.caorderapi.model.ProductEntity;
 import com.caorderapi.repository.InventoryReservationRepository;
-import com.caorderapi.repository.OrderItemStatusRepository;
 import com.caorderapi.repository.ProductRepository;
 import com.caorderapi.service.IOrderInventoryService;
-import com.caorderapi.dto.InventoryReservationBatch;
 import com.caorderapi.service.IStatusTransitionPolicyService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
