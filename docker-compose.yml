@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: ca-order-api-postgres
+    environment:
+      POSTGRES_DB: ca_order_api
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: sa
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/main/resources/db/changelog/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:7
+    container_name: ca-order-api-redis
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  wiremock-payment:
+    image: wiremock/wiremock:3.3.1
+    container_name: wiremock-payment
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./mock/wiremock/payment:/home/wiremock
+    command: [ "--global-response-templating", "--verbose" ]
+
+  wiremock-fulfillment:
+    image: wiremock/wiremock:3.3.1
+    container_name: wiremock-fulfillment
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./mock/wiremock/fulfillment:/home/wiremock
+    command: [ "--global-response-templating", "--verbose" ]
+volumes:
+  pgdata:

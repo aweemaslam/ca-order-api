@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/fulfillments/dispatches"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "ACCEPTED",
+      "referenceId": "ful_{{randomValue type='UUID'}}"
+    }
+  }
+}

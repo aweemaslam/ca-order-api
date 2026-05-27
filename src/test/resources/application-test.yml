@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: ca-orders-api
+  datasource:
+    url: jdbc:h2:mem:ca_order_api_test_${random.uuid};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_ON_EXIT=FALSE;INIT=CREATE SCHEMA IF NOT EXISTS ca_order_api_test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      schema: ca_order_api_test
+      maximum-pool-size: 5
+      minimum-idle: 1
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+  liquibase:
+    change-log: classpath:db/changelog/main-changelog.xml
+    default-schema: ca_order_api_test
+    liquibase-schema: ca_order_api_test
+    enabled: true
+  task:
+    scheduling:
+      enabled: false
+
+logging:
+  level:
+    com.ca.orderapi: INFO
+    org.hibernate.SQL: DEBUG
+
+app:
+  payment:
+    base-url: http://localhost:8089
+  fulfillment:
+    base-url: http://localhost:8090
+  orders:
+    initial-status: PENDING
+    pay-target-status: PAID
+    fulfill-target-status: FULFILLED
+    CANCELLED-status: CANCELLED
+    reservation-ttl-minutes: 15
+  orderItems:
+    initial-status: PENDING
+    pay-target-status: CONFIRMED
+    fulfill-target-status: FULFILLED
+    CANCELLED-status: CANCELLED
+

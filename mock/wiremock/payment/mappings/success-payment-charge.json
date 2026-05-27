@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/payments/charges"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "transactionId": "txn_{{randomValue type='UUID'}}",
+      "merchantReference": "{{jsonPath request.body '$.merchantReference'}}",
+      "resultCode": "AUTHORISED",
+      "refusalReason": null,
+      "authCode": "{{randomValue length=6 type='ALPHANUMERIC'}}"
+    }
+  }
+}

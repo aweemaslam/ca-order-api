@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: ca-orders-api
+  threads:
+    virtual:
+      enabled: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ca_order_api?reWriteBatchedInserts=true}
+    #url: ${SPRING_DATASOURCE_URL:jdbc:h2:./db/ca_order_api;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;INIT=CREATE SCHEMA IF NOT EXISTS ca_order_api}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:sa}
+    driver-class-name: org.postgresql.Driver
+    #driver-class-name: org.h2.Driver
+    hikari:
+      schema: ca_order_api
+      maximum-pool-size: 10
+      minimum-idle: 3
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+      pool-name: C_A_Orders_Hikari_Pool
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+  liquibase:
+    change-log: classpath:db/changelog/main-changelog.xml
+    default-schema: ca_order_api
+    enabled: true
+
+cache:
+  caffeine:
+    spec: expireAfterWrite=5m,maximumSize=1000
+
+logging:
+  level:
+    com.ca.orderapi: INFO
+    org.hibernate.SQL: INFO
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentClient:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+        permittedNumberOfCallsInHalfOpenState: 5
+      fulfillmentClient:
+        slidingWindowSize: 20
+        failureRateThreshold: 60
+        waitDurationInOpenState: 20000
+
+app:
+  payment:
+    #base-url: ${PAYMENT_BASE_URL:http://wiremock-payment:8089}
+    base-url: ${PAYMENT_BASE_URL:http://localhost:8089}
+
+  fulfillment:
+    #base-url: ${FULFILLMENT_BASE_URL:http://wiremock-fulfillment:8090}
+    base-url: ${FULFILLMENT_BASE_URL:http://localhost:8090}
+
+  orders:
+    initial-status: PENDING
+    pay-target-status: PAID
+    fulfill-target-status: FULFILLED
+    CANCELLED-status: CANCELLED
+    reservation-ttl-minutes: 15
+  orderItems:
+    initial-status: PENDING
+    pay-target-status: CONFIRMED
+    fulfill-target-status: FULFILLED
+    CANCELLED-status: CANCELLED
+
+kind: Application
