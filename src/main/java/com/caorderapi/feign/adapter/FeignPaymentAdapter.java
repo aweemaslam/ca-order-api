@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class FeignPaymentAdapter implements PaymentPort {
 
-    private static final String CURRENCY = "EUR"; // should ideally come from order or be configurable
-
     private final PaymentGatewayClient paymentGatewayClient;
 
     @Override
@@ -31,7 +29,7 @@ public class FeignPaymentAdapter implements PaymentPort {
                 order.getId().toString(),
                 order.getId().toString(),
                 amountCents,
-                CURRENCY,
+                order.getCurrency(),
                 order.getCustomerEmail(),
                 "C&A Order #" + order.getId(),
                 CaptureMode.IMMEDIATE

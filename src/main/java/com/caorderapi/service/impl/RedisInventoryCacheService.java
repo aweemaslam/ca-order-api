@@ -62,7 +62,9 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
     public void releaseStock(UUID productId, int qty) {
 
         String key = PRODUCT_KEY + productId;
-
+        if (!redisTemplate.hasKey(key)) {
+            throw new ProductNotFoundException("Product not found with id: %s".formatted(productId.toString()));
+        }
         redisTemplate.opsForHash()
                 .increment(key, "stockQuantity", qty);
     }
@@ -71,7 +73,9 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
     public Integer getStock(UUID productId) {
 
         String key = PRODUCT_KEY + productId;
-
+        if (!redisTemplate.hasKey(key)) {
+            throw new ProductNotFoundException("Product not found with id: %s".formatted(productId.toString()));
+        }
         Object stock = redisTemplate.opsForHash()
                 .get(key, "stockQuantity");
 

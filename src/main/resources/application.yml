@@ -1,20 +1,17 @@
 spring:
   application:
     name: ca-orders-api
+
   threads:
     virtual:
       enabled: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ca_order_api?reWriteBatchedInserts=true}
-    #url: ${SPRING_DATASOURCE_URL:jdbc:h2:./db/ca_order_api;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;INIT=CREATE SCHEMA IF NOT EXISTS ca_order_api}
     username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:sa}
     driver-class-name: org.postgresql.Driver
-    #driver-class-name: org.h2.Driver
+
     hikari:
       schema: ca_order_api
       maximum-pool-size: 10
@@ -22,7 +19,8 @@ spring:
       idle-timeout: 30000
       connection-timeout: 20000
       max-lifetime: 1800000
-      pool-name: C_A_Orders_Hikari_Pool
+      pool-name: ca-orders-hikari-pool
+
   jpa:
     open-in-view: false
     hibernate:
@@ -33,67 +31,63 @@ spring:
         jdbc.batch_size: 50
         order_inserts: true
         order_updates: true
-  liquibase:
-    change-log: classpath:db/changelog/main-changelog.xml
-    default-schema: ca_order_api
-    enabled: true
+
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    topic:
+      order-event: order-events
+
     producer:
-      topic: order-events
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      group-id: order-service
+      properties:
+        acks: all
+        enable.idempotence: true
+        retries: 5
 
-cache:
-  caffeine:
-    spec: expireAfterWrite=5m,maximumSize=1000
+      consumer:
+        group-id: order-service
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+        properties:
+          spring.json.trusted.packages: com.caorderapi.kafka.model
+          spring.json.use.type.headers: false
+          spring.json.value.default.type: com.caorderapi.kafka.model.OrderEvent
 
 logging:
   level:
-    com.ca.orderapi: INFO
+    com.caorderapi: INFO
     org.hibernate.SQL: INFO
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      paymentClient:
-        slidingWindowSize: 20
-        failureRateThreshold: 50
-        waitDurationInOpenState: 15000
-        permittedNumberOfCallsInHalfOpenState: 5
-      fulfillmentClient:
-        slidingWindowSize: 20
-        failureRateThreshold: 60
-        waitDurationInOpenState: 20000
-
 app:
+  kafka:
+    topic:
+      order-events: order-events
+
   payment:
-    #base-url: ${PAYMENT_BASE_URL:http://wiremock-payment:8089}
     base-url: ${PAYMENT_BASE_URL:http://localhost:8089}
 
   fulfillment:
-    #base-url: ${FULFILLMENT_BASE_URL:http://wiremock-fulfillment:8090}
     base-url: ${FULFILLMENT_BASE_URL:http://localhost:8090}
 
   orders:
     initial-status: PENDING
     pay-target-status: PAID
     fulfill-target-status: FULFILLED
-    CANCELLED-status: CANCELLED
+    cancelled-status: CANCELLED
     reservation-ttl-minutes: 15
-  orderItems:
+
+  order-items:
     initial-status: PENDING
     pay-target-status: CONFIRMED
     fulfill-target-status: FULFILLED
-    CANCELLED-status: CANCELLED
+    cancelled-status: CANCELLED
 
   outbox:
     publish-delay-ms: 5000
-
-kind: Application

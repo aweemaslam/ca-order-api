@@ -1,6 +1,7 @@
 package com.caorderapi.model;
 
 
+import com.caorderapi.dto.OutboxEntityPayload;
 import com.caorderapi.enums.AggregateType;
 import com.caorderapi.enums.OutboxEventType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
@@ -35,7 +36,7 @@ public class OutboxEventEntity extends BaseEntity implements Serializable {
 
     @Column(nullable = false, columnDefinition = "jsonb")
     @Type(value = JsonBinaryType.class)
-    private String payload;
+    private OutboxEntityPayload payload;
 
     @Column(nullable = false)
     private boolean processed;

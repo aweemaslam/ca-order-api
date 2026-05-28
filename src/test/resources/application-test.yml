@@ -28,6 +28,31 @@ spring:
   task:
     scheduling:
       enabled: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:dummy:9092}
+    topic:
+      order-event: order-events
+    listener:
+      auto-startup: false
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        acks: all
+        enable.idempotence: true
+        retries: 5
+
+    consumer:
+      group-id: order-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        spring.json.trusted.packages: com.caorderapi.kafka.model
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.caorderapi.kafka.model.OrderEvent
 
 logging:
   level:

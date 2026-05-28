@@ -12,7 +12,7 @@ public class OrderEventProducer {
 
     private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
 
-    @Value("${spring.kafka.producer.topic:order-events}")
+    @Value("${spring.kafka.topic.order-event:order-events}")
     private String topic;
 
     public void publish(OrderEvent event) {

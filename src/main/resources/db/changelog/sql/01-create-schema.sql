@@ -54,6 +54,7 @@ CREATE TABLE orders
     order_id       UUID           NOT NULL,
     customer_email VARCHAR(255)   NOT NULL,
     status_code    VARCHAR(50)    NOT NULL,
+    currency       VARCHAR(3)     NOT NULL,
     total_amount   NUMERIC(12, 2) NOT NULL,
     is_active      BOOLEAN        NOT NULL DEFAULT TRUE,
     created_at     TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,

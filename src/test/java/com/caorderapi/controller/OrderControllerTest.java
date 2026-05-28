@@ -44,6 +44,7 @@ class OrderControllerTest {
         String payload = """
                 {
                   "customerEmail": "john@ca.com",
+                  "currency": "EUR",
                   "items": [
                     {"productId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d", "quantity": 2}
                   ]
@@ -102,6 +103,6 @@ class OrderControllerTest {
     }
 
     private OrderResponse response(UUID orderId, String status) {
-        return new OrderResponse(orderId, "john@ca.com", status, BigDecimal.valueOf(100), LocalDateTime.now(), List.of());
+        return new OrderResponse(orderId, "john@ca.com", status ,BigDecimal.valueOf(100),"EUR", LocalDateTime.now(), List.of());
     }
 }
