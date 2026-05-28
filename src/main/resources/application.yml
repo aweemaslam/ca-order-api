@@ -37,6 +37,18 @@ spring:
     change-log: classpath:db/changelog/main-changelog.xml
     default-schema: ca_order_api
     enabled: true
+  redis:
+    host: localhost
+    port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      topic: order-events
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: order-service
 
 cache:
   caffeine:
@@ -80,5 +92,8 @@ app:
     pay-target-status: CONFIRMED
     fulfill-target-status: FULFILLED
     CANCELLED-status: CANCELLED
+
+  outbox:
+    publish-delay-ms: 5000
 
 kind: Application

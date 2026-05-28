@@ -1,10 +1,7 @@
 package com.caorderapi.controller;
 
 import com.caorderapi.dto.ErrorResponse;
-import com.caorderapi.exception.ExternalServiceException;
-import com.caorderapi.exception.InsufficientStockException;
-import com.caorderapi.exception.InvalidOrderStateException;
-import com.caorderapi.exception.ResourceNotFoundException;
+import com.caorderapi.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -20,7 +17,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler({ResourceNotFoundException.class, ProductNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }

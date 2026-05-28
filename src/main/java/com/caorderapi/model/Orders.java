@@ -38,6 +38,9 @@ public class Orders extends BaseEntity implements Serializable {
     @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "currency", nullable = false)
+    private String currency;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderItemEntity> items = new ArrayList<>();
 

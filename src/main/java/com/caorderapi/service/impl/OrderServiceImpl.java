@@ -5,7 +5,6 @@ import com.caorderapi.dto.CreateOrderRequest;
 import com.caorderapi.dto.OrderResponse;
 import com.caorderapi.enums.AggregateType;
 import com.caorderapi.enums.OutboxEventType;
-import com.caorderapi.event.OutboxDispatchRequestedEvent;
 import com.caorderapi.exception.InvalidOrderStateException;
 import com.caorderapi.exception.ResourceNotFoundException;
 import com.caorderapi.feign.port.FulfillmentPort;
@@ -17,7 +16,6 @@ import com.caorderapi.repository.OutboxEventRepository;
 import com.caorderapi.service.IOrderInventoryService;
 import com.caorderapi.service.IOrderService;
 import com.caorderapi.service.IStatusTransitionPolicyService;
-import com.caorderapi.dto.InventoryReservationBatch;
 import com.caorderapi.service.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -67,21 +66,21 @@ public class OrderServiceImpl implements IOrderService {
         Orders order = new Orders();
         order.setId(requestedOrderId != null ? requestedOrderId : UUID.randomUUID());
         order.setCustomerEmail(request.customerEmail());
+        order.setCurrency(request.currency());
         order.setIdempotencyKey(normalizedKey);
         order.setStatus(orderStatusPolicyService.requireActiveOrderStatus(applicationStatusConfigurations.getOrders().getInitialStatus()));
 
-        InventoryReservationBatch reservationBatch = orderInventoryService.reserveInventory(
+        BigDecimal totalAmount = orderInventoryService.reserveInventory(
                 order,
                 request.items(),
                 applicationStatusConfigurations.getOrders().getReservationTtlMinutes(),
                 applicationStatusConfigurations.getOrderItems().getInitialStatus(),
                 normalizedKey);
 
-        order.setTotalAmount(reservationBatch.total());
+        order.setTotalAmount(totalAmount);
         order.setActive(true);
 
         orderRepository.save(order);
-        orderInventoryService.saveReservations(reservationBatch.reservations());
         saveOutbox(AggregateType.ORDER, order.getId().toString(), OutboxEventType.ORDER_CREATED,
                 "{\"status\":\"" + order.getStatus().getStatusCode() + "\"}");
         return orderMapper.toResponse(order);
@@ -117,11 +116,9 @@ public class OrderServiceImpl implements IOrderService {
             case "PAID" -> {
                 try {
                     paymentPort.charge(order);
-                    orderInventoryService.confirmReservations(orderId);
                     order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
                             .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getPayTargetStatus())));
                 } catch (Exception ex) {
-                    orderInventoryService.releaseReservations(orderId);
                     throw ex instanceof RuntimeException runtime ? runtime : new IllegalStateException(ex);
                 }
             }
@@ -131,12 +128,10 @@ public class OrderServiceImpl implements IOrderService {
                     order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
                             .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getFulfillTargetStatus())));
                 } catch (Exception ex) {
-                    orderInventoryService.releaseReservations(orderId);
                     throw ex instanceof RuntimeException runtime ? runtime : new IllegalStateException(ex);
                 }
             }
             case "CANCELLED" -> {
-                orderInventoryService.releaseReservations(orderId);
                 order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
                         .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getCancelledStatus())));
 
@@ -164,7 +159,6 @@ public class OrderServiceImpl implements IOrderService {
         event.setRetryCount(0);
         event.setLastError(null);
         outboxEventRepository.save(event);
-        applicationEventPublisher.publishEvent(new OutboxDispatchRequestedEvent());
     }
 
     private String normalizeIdempotencyKey(String idempotencyKey) {

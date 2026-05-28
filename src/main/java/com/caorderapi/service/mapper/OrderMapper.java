@@ -21,6 +21,7 @@ public class OrderMapper {
                 order.getCustomerEmail(),
                 order.getStatus().getStatusCode(),
                 order.getTotalAmount(),
+                order.getCurrency(),
                 order.getCreatedAt(),
                 items
         );
@@ -28,7 +29,7 @@ public class OrderMapper {
 
     private OrderItemResponse toItemResponse(OrderItemEntity item) {
         return new OrderItemResponse(
-                item.getProduct().getId(),
+                item.getProductId(),
                 item.getQuantity(),
                 item.getPrice(),
                 item.getStatus().getStatusCode()

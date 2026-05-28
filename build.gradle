@@ -42,6 +42,9 @@ dependencies {
 	// Cloud Resiliency, OpenFeign Adapters & Circuit Breaker Starters
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+	// redis & kafka for high-throughput caching and messaging
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.kafka:spring-kafka'
 
 	// Database Migration & Transaction Coordination
 	implementation 'org.liquibase:liquibase-core'

@@ -35,7 +35,7 @@ public class OutboxEventEntity extends BaseEntity implements Serializable {
 
     @Column(nullable = false, columnDefinition = "jsonb")
     @Type(value = JsonBinaryType.class)
-    private Object payload;
+    private String payload;
 
     @Column(nullable = false)
     private boolean processed;

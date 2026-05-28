@@ -10,6 +10,7 @@ public record OrderResponse(
     String customerEmail,
     String status,
     BigDecimal totalAmountCents,
+    String currency,
     LocalDateTime createdAt,
     List<OrderItemResponse> items
 ) {

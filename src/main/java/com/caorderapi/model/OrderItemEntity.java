@@ -22,9 +22,8 @@ public class OrderItemEntity extends BaseEntity implements Serializable {
     @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_items_parent"))
     private Orders order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_items_product"))
-    private ProductEntity product;
+    @Column(name = "product_id", nullable = false)
+    private UUID productId;
 
     @Column(nullable = false)
     private Integer quantity;
