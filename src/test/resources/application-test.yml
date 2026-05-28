@@ -29,7 +29,6 @@ spring:
     scheduling:
       enabled: false
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:dummy:9092}
     topic:
       order-event: order-events
     listener:
