@@ -17,7 +17,6 @@ import com.caorderapi.service.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +37,6 @@ public class OrderServiceImpl implements IOrderService {
     private final OrderMapper orderMapper;
     private final IOrderInventoryService orderInventoryService;
     private final IStatusTransitionPolicyService orderStatusPolicyService;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final ApplicationStatusConfigurations applicationStatusConfigurations;
     private final IOutboxEventService outboxEventService;
     @Override

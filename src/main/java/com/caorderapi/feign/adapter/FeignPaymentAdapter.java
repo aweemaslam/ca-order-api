@@ -22,7 +22,7 @@ public class FeignPaymentAdapter implements PaymentPort {
     @Override
     @CircuitBreaker(name = "paymentGatewayClient", fallbackMethod = "fallbackCharge")
     public void charge(Orders order) {
-        // Convert decimal amount to smallest currency unit (cents) as required by Stripe/Adyen
+        // Convert decimal amount to smallest currency unit (cents) as required by payment gateways
         long amountCents = order.getTotalAmount().movePointRight(2).setScale(0, java.math.RoundingMode.HALF_UP).longValueExact();
 
         PaymentChargeRequest request = new PaymentChargeRequest(
