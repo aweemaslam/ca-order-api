@@ -28,12 +28,13 @@ spring:
     change-log: classpath:db/changelog/main-changelog.xml
     default-schema: ca_order_api
     enabled: true
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     topic:
       order-event: order-events
 
@@ -76,11 +77,9 @@ resilience4j:
 
 app:
   payment:
-    #base-url: ${PAYMENT_BASE_URL:http://wiremock-payment:8089}
     base-url: ${PAYMENT_BASE_URL:http://localhost:8089}
 
   fulfillment:
-    #base-url: ${FULFILLMENT_BASE_URL:http://wiremock-fulfillment:8090}
     base-url: ${FULFILLMENT_BASE_URL:http://localhost:8090}
 
   orders:
@@ -95,5 +94,8 @@ app:
     fulfill-target-status: FULFILLED
     cancelled-status: CANCELLED
 
-  outbox:
-    publish-delay-ms: 5000
+  jobs:
+    outbox-publish-delay-ms: 2000
+    pending-order-cancellation-ms: 5000
+
+

@@ -30,7 +30,6 @@ public class OrderInventoryServiceImpl implements IOrderInventoryService {
     public BigDecimal reserveInventory(
             Orders order,
             List<CreateOrderItemRequest> itemRequests,
-            long reservationTtlMinutes,
             String initialItemStatus, String idempotencyKey) {
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (CreateOrderItemRequest itemRequest : itemRequests) {

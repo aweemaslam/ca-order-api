@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Base entity class to provide automatic creation and update timestamps.
@@ -22,13 +22,13 @@ public abstract class BaseEntity {
      */
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    protected LocalDateTime createdAt;
+    protected Instant createdAt;
 
     /**
      * Timestamp when the entity was last updated (automatically set).
      */
     @UpdateTimestamp
-    protected LocalDateTime updatedAt;
+    protected Instant updatedAt;
 
     @Column(name = "is_active", nullable = false)
     protected boolean active;

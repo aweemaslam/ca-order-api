@@ -12,7 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -103,6 +103,6 @@ class OrderControllerTest {
     }
 
     private OrderResponse response(UUID orderId, String status) {
-        return new OrderResponse(orderId, "john@ca.com", status ,BigDecimal.valueOf(100),"EUR", LocalDateTime.now(), List.of());
+        return new OrderResponse(orderId, "john@ca.com", status ,BigDecimal.valueOf(100),"EUR", Instant.now(), List.of());
     }
 }

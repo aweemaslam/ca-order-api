@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  ca-orders-api:
+    build: .
+    container_name: ca-orders-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - wiremock-payment
+      - wiremock-fulfillment
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ca_order_api?reWriteBatchedInserts=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: sa
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      PAYMENT_BASE_URL: http://wiremock-payment:8080
+      FULFILLMENT_BASE_URL: http://wiremock-fulfillment:8080
 
   postgres:
     image: postgres:16
@@ -20,6 +40,8 @@ services:
     container_name: ca-order-api-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redisdata:/data
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -37,7 +59,11 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      # Create TWO entry points: INTERNAL and EXTERNAL for local build
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   wiremock-payment:
@@ -57,5 +83,7 @@ services:
     volumes:
       - ./mock/wiremock/fulfillment:/home/wiremock
     command: [ "--global-response-templating", "--verbose" ]
+
 volumes:
   pgdata:
+  redisdata:

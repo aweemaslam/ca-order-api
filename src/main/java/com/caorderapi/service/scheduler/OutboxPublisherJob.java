@@ -23,11 +23,11 @@ public class OutboxPublisherJob {
     private final OutboxEventRepository outboxEventRepository;
     private final OrderEventProducer producer;
 
-    @Scheduled(fixedDelayString = "${app.outbox.publish-delay-ms:5000}")
+    @Scheduled(fixedDelayString = "${app.jobs.outbox-publish-delay-ms:5000}")
     @SchedulerLock(name = "outboxPublisherJob", lockAtLeastFor = "PT2S", lockAtMostFor = "PT20S")
     @Transactional
     public void publish() {
-        List<OutboxEventEntity> pending = outboxEventRepository.findTop100ByProcessedFalseOrderByCreatedAtAsc();
+        List<OutboxEventEntity> pending = outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc();
         if (pending.isEmpty()) {
             return;
         }

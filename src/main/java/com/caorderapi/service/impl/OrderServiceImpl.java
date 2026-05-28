@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -72,13 +72,12 @@ public class OrderServiceImpl implements IOrderService {
             BigDecimal totalAmount = orderInventoryService.reserveInventory(
                     order,
                     request.items(),
-                    applicationStatusConfigurations.getOrders().getReservationTtlMinutes(),
                     applicationStatusConfigurations.getOrderItems().getInitialStatus(),
                     normalizedKey);
 
             order.setTotalAmount(totalAmount);
             order.setActive(true);
-            order.setCreatedAt(LocalDateTime.now());
+            order.setCreatedAt(Instant.now());
             orderRepository.save(order);
             outboxEventService.saveOrderCreatedOutbox(order);
             return orderMapper.toResponse(order);

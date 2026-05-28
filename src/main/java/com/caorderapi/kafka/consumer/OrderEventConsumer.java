@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class OrderEventConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic.order-event:order-events}",
             groupId = "${spring.kafka.consumer.group-id:order-service}")
+    @Transactional
     public void consume(OrderEvent event) {
 
         log.info("Received event: {}", event);
@@ -31,16 +33,19 @@ public class OrderEventConsumer {
     }
 
     private void handleStockRelease(OrderEvent event) {
-        event.payload().productsWithQuantity().forEach((key, value) ->
-                redisInventoryCacheService.releaseStock(UUID.fromString(key), value));
+        event.payload().productsWithQuantity().forEach((key, value) -> {
+            redisInventoryCacheService.releaseStock(UUID.fromString(key), value);
+            //productRepository.incrementStock(UUID.fromString(key), value);
+        });
     }
 
     private void handleOrderStatusChanged(OrderEvent event) {
         switch (event.payload().status()) {
+            // update product stock in db once payment is confirmed
             case "PAID" -> event.payload().productsWithQuantity().forEach((key, value) -> {
-                Integer stockQuantity = redisInventoryCacheService.getStock(UUID.fromString(key));
-                productRepository.updateStock(UUID.fromString(key), stockQuantity);
+                productRepository.decrementStockIfAvailable(UUID.fromString(key), value);
             });
+            // revert the stock in redis cache
             case "CANCELLED" -> handleStockRelease(event);
 
         }

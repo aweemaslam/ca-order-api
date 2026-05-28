@@ -17,7 +17,6 @@ public interface IOrderInventoryService {
     BigDecimal reserveInventory(
             Orders order,
             List<CreateOrderItemRequest> itemRequests,
-            long reservationTtlMinutes,
             String initialStatus, String idempotencyKey);
 }
 
