@@ -519,10 +519,10 @@ The system is designed to scale horizontally.
 ---
 ## 📌 Assumptions
 - Single currency support for simplicity
-- Product catalog managed externally
+- Product catalog managed currently in order api but will be part of catalog microservice
 - Inventory updates are eventually consistent
-- Payment provider is external
-- Fulfillment provider is external
+- Payment provider is external(mocked)
+- Fulfillment provider is external(mocked)
 - Authentication/authorization omitted intentionally
 - Focus placed on backend transactional consistency
 
