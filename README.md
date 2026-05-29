@@ -487,10 +487,6 @@ This challenge intentionally does NOT implement:
 * Advanced fraud prevention
 * Full inventory reconciliation
 
-The goal was not full e-commerce coverage, but rather demonstrating:
-
-how core order workflows can be implemented in a scalable and production-oriented way.
-Enhancements or adding new attributes in order flow is not a big deal as it is designed to support future enhancements.
 ---
 ## 🚀 Scalability Considerations
 
