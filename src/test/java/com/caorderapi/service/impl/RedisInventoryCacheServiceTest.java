@@ -2,7 +2,6 @@ package com.caorderapi.service.impl;
 
 import com.caorderapi.dto.ProductCacheDto;
 import com.caorderapi.exception.ProductNotFoundException;
-import com.caorderapi.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,14 +14,15 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RedisInventoryCacheServiceTest {
 
-    @Mock private ProductRepository productRepository;
     @Mock private StringRedisTemplate redisTemplate;
     @Mock private HashOperations<String, Object, Object> hashOperations;
 

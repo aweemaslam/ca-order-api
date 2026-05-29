@@ -29,11 +29,9 @@ class PendingOrderCancellationJobTest {
     @Mock private OrderRepository orderRepository;
     @InjectMocks private PendingOrderCancellationJob job;
 
-    private ApplicationStatusConfigurations.StatusConfig ordersConfig;
-
     @BeforeEach
     void setUp() {
-        ordersConfig = new ApplicationStatusConfigurations.StatusConfig();
+        ApplicationStatusConfigurations.StatusConfig ordersConfig = new ApplicationStatusConfigurations.StatusConfig();
         ordersConfig.setInitialStatus("PENDING");
         ordersConfig.setCancelledStatus("CANCELLED");
         when(applicationStatusConfigurations.getOrders()).thenReturn(ordersConfig);

@@ -14,7 +14,6 @@ import com.caorderapi.repository.OrderRepository;
 import com.caorderapi.service.IOrderInventoryService;
 import com.caorderapi.service.IOutboxEventService;
 import com.caorderapi.service.IStatusTransitionPolicyService;
-import com.caorderapi.service.impl.OrderServiceImpl;
 import com.caorderapi.service.mapper.OrderMapper;
 import com.caorderapi.util.OrderTestFactory;
 import org.junit.jupiter.api.BeforeEach;
