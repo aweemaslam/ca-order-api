@@ -54,7 +54,7 @@ class OrderInventoryServiceImplTest {
 
         assertThat(total).isEqualByComparingTo("35");
         assertThat(order.getItems()).hasSize(2);
-        assertThat(order.getItems().get(0).getStatus().getStatusCode()).isEqualTo("PENDING");
+        assertThat(order.getItems().getFirst().getStatus().getStatusCode()).isEqualTo("PENDING");
     }
 
     @Test

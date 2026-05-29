@@ -118,15 +118,12 @@ public class OrderServiceImpl implements IOrderService {
                         .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getPayTargetStatus())));
             }
             case "FULFILLED" -> {
-
                 fulfillmentPort.fulfill(orderId);
                 order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
                         .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getFulfillTargetStatus())));
             }
-            case "CANCELLED" -> {
-                order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
-                        .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getCancelledStatus())));
-            }
+            case "CANCELLED" -> order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
+                    .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getCancelledStatus())));
             default -> throw new InvalidOrderStateException("Invalid Order Status, cannot transition to %s status"
                     .formatted(targetStatus));
         }

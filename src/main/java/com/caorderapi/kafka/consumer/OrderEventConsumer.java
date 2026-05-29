@@ -42,9 +42,8 @@ public class OrderEventConsumer {
     private void handleOrderStatusChanged(OrderEvent event) {
         switch (event.payload().status()) {
             // update product stock in db once payment is confirmed
-            case "PAID" -> event.payload().productsWithQuantity().forEach((key, value) -> {
-                productRepository.decrementStockIfAvailable(UUID.fromString(key), value);
-            });
+            case "PAID" -> event.payload().productsWithQuantity().forEach((key, value) ->
+                    productRepository.decrementStockIfAvailable(UUID.fromString(key), value));
             // revert the stock in redis cache
             case "CANCELLED" -> handleStockRelease(event);
 
