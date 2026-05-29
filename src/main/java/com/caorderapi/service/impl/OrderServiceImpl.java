@@ -15,7 +15,6 @@ import com.caorderapi.service.IOutboxEventService;
 import com.caorderapi.service.IStatusTransitionPolicyService;
 import com.caorderapi.service.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,14 +95,12 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = "payOrder", key = "#orderId")
     public OrderResponse payOrder(UUID orderId) {
         return transitionOrderStatus(orderId, applicationStatusConfigurations.getOrders().getPayTargetStatus());
     }
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = "transitionOrderStatus")
     public OrderResponse transitionOrderStatus(UUID orderId, String targetStatus) {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));

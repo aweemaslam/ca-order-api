@@ -35,7 +35,6 @@ public class OrderEventConsumer {
     private void handleStockRelease(OrderEvent event) {
         event.payload().productsWithQuantity().forEach((key, value) -> {
             redisInventoryCacheService.releaseStock(UUID.fromString(key), value);
-            //productRepository.incrementStock(UUID.fromString(key), value);
         });
     }
 

@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Default inventory workflow implementation using atomic DB updates + reservation records.
+ * Default inventory workflow implementation for reservation of stock.
  */
 @Service
 @RequiredArgsConstructor

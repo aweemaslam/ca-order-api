@@ -19,7 +19,8 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager manager =
-                new CaffeineCacheManager("ordersById", "transitionOrderStatus", "payOrder", "productsById", "activeStatuses", "allowedTransitions", "activeOrderStatuses", "getOrderStatus", "getOrderItemStatus");
+                new CaffeineCacheManager("ordersById", "activeStatuses", "allowedTransitions",
+                        "activeOrderStatuses", "getOrderStatus", "getOrderItemStatus", "assertTransitionAllowed");
 
         manager.setCaffeine(
                 Caffeine.newBuilder()

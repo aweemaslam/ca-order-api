@@ -27,7 +27,7 @@ public class FeignPaymentAdapter implements PaymentPort {
 
         PaymentChargeRequest request = new PaymentChargeRequest(
                 order.getId().toString(),
-                order.getId().toString(),
+                order.getId().toString(), // need to be a secure token or PSP as required by payment api gateway vendor
                 amountCents,
                 order.getCurrency(),
                 order.getCustomerEmail(),
