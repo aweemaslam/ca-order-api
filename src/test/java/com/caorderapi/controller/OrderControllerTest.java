@@ -1,8 +1,10 @@
 package com.caorderapi.controller;
 
 import com.caorderapi.dto.OrderResponse;
+import com.caorderapi.exception.ExternalServiceException;
+import com.caorderapi.exception.InvalidOrderStateException;
+import com.caorderapi.exception.ResourceNotFoundException;
 import com.caorderapi.service.IOrderService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,9 +31,6 @@ class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private IOrderService orderService;
@@ -100,6 +99,97 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"targetStatus\":\"\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrderReturnsBadRequestWhenEmailInvalid() throws Exception {
+        String payload = """
+                {"customerEmail":"not-an-email","currency":"EUR",
+                 "items":[{"productId":"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d","quantity":1}]}
+                """;
+
+        mockMvc.perform(post("/api/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Idempotency-Key", "test-key")
+                        .content(payload))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrderReturnsBadRequestWhenCurrencyInvalid() throws Exception {
+        String payload = """
+                {"customerEmail":"john@ca.com","currency":"eur",
+                 "items":[{"productId":"a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d","quantity":1}]}
+                """;
+
+        mockMvc.perform(post("/api/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Idempotency-Key", "test-key")
+                        .content(payload))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrderReturnsBadRequestWhenItemsEmpty() throws Exception {
+        String payload = """
+                {"customerEmail":"john@ca.com","currency":"EUR","items":[]}
+                """;
+
+        mockMvc.perform(post("/api/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Idempotency-Key", "test-key")
+                        .content(payload))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrderReturnsBadRequestWhenMalformedBody() throws Exception {
+        mockMvc.perform(post("/api/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Idempotency-Key", "test-key")
+                        .content("{not valid json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Malformed JSON request"));
+    }
+
+    @Test
+    void getOrderReturnsNotFoundWhenOrderMissing() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        when(orderService.getOrder(orderId)).thenThrow(new ResourceNotFoundException("Order not found: " + orderId));
+
+        mockMvc.perform(get("/api/v1/orders/{id}", orderId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void payOrderReturnsBadRequestWhenInvalidState() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        when(orderService.payOrder(orderId)).thenThrow(new InvalidOrderStateException("Invalid state"));
+
+        mockMvc.perform(post("/api/v1/orders/{id}/pay", orderId))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void payOrderReturnsBadGatewayWhenExternalFails() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        when(orderService.payOrder(orderId)).thenThrow(new ExternalServiceException("gateway down", null));
+
+        mockMvc.perform(post("/api/v1/orders/{id}/pay", orderId))
+                .andExpect(status().isBadGateway());
+    }
+
+    @Test
+    void transitionReturnsNotFoundWhenOrderMissing() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        when(orderService.transitionOrderStatus(eq(orderId), anyString()))
+                .thenThrow(new ResourceNotFoundException("Order not found: " + orderId));
+
+        mockMvc.perform(post("/api/v1/orders/{id}/status/transition", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"targetStatus\":\"CANCELLED\"}"))
+                .andExpect(status().isNotFound());
     }
 
     private OrderResponse response(UUID orderId, String status) {

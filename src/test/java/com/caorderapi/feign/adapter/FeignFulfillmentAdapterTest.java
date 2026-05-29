@@ -1,8 +1,7 @@
-package com.caorderapi.service;
+package com.caorderapi.feign.adapter;
 
 import com.caorderapi.exception.ExternalServiceException;
 import com.caorderapi.feign.FulfillmentGatewayClient;
-import com.caorderapi.feign.adapter.FeignFulfillmentAdapter;
 import com.caorderapi.feign.dto.FulfillmentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +35,22 @@ class FeignFulfillmentAdapterTest {
     @Test
     void fulfillThrowsWhenProviderRejects() {
         when(fulfillmentGatewayClient.dispatch(any())).thenReturn(new FulfillmentResponse("REJECTED", "ful-2"));
+
+        assertThrows(ExternalServiceException.class,
+                () -> adapter.fulfill(UUID.randomUUID()));
+    }
+
+    @Test
+    void fulfillThrowsWhenResponseIsNull() {
+        when(fulfillmentGatewayClient.dispatch(any())).thenReturn(null);
+
+        assertThrows(ExternalServiceException.class,
+                () -> adapter.fulfill(UUID.randomUUID()));
+    }
+
+    @Test
+    void fulfillThrowsWhenStatusIsNull() {
+        when(fulfillmentGatewayClient.dispatch(any())).thenReturn(new FulfillmentResponse(null, "ful-3"));
 
         assertThrows(ExternalServiceException.class,
                 () -> adapter.fulfill(UUID.randomUUID()));

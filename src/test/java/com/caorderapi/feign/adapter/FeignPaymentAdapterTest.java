@@ -1,8 +1,7 @@
-package com.caorderapi.service;
+package com.caorderapi.feign.adapter;
 
 import com.caorderapi.exception.ExternalServiceException;
 import com.caorderapi.feign.PaymentGatewayClient;
-import com.caorderapi.feign.adapter.FeignPaymentAdapter;
 import com.caorderapi.feign.dto.PaymentChargeResponse;
 import com.caorderapi.model.OrderStatusEntity;
 import com.caorderapi.model.Orders;
@@ -36,6 +35,7 @@ class FeignPaymentAdapterTest {
         order.setId(UUID.randomUUID());
         order.setCustomerEmail("customer@example.com");
         order.setTotalAmount(amount);
+        order.setCurrency("EUR");
         order.setStatus(status);
         return order;
     }
@@ -52,6 +52,23 @@ class FeignPaymentAdapterTest {
     void chargeThrowsWhenProviderRefuses() {
         when(paymentGatewayClient.charge(any()))
                 .thenReturn(new PaymentChargeResponse("tx-2", "ref-2", "REFUSED", "Insufficient funds", null));
+
+        assertThrows(ExternalServiceException.class,
+                () -> adapter.charge(buildOrder(BigDecimal.valueOf(49.99))));
+    }
+
+    @Test
+    void chargeThrowsWhenResponseIsNull() {
+        when(paymentGatewayClient.charge(any())).thenReturn(null);
+
+        assertThrows(ExternalServiceException.class,
+                () -> adapter.charge(buildOrder(BigDecimal.valueOf(49.99))));
+    }
+
+    @Test
+    void chargeThrowsWhenResultCodeIsNull() {
+        when(paymentGatewayClient.charge(any()))
+                .thenReturn(new PaymentChargeResponse("tx-3", "ref-3", null, null, null));
 
         assertThrows(ExternalServiceException.class,
                 () -> adapter.charge(buildOrder(BigDecimal.valueOf(49.99))));

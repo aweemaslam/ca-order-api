@@ -1,6 +1,7 @@
 package com.caorderapi.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
@@ -8,6 +9,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 @Configuration
+@Profile("kafka-it")
 public class KafkaTestContainerConfig {
 
     @Container

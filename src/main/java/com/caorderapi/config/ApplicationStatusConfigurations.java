@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "app")
 public class ApplicationStatusConfigurations {
 
-    // Getters and Setters
     private StatusConfig orders;
     private StatusConfig orderItems;
 
