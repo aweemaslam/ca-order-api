@@ -1,6 +1,7 @@
 # CA Orders API – Event Driven Order Management System
 
 ---
+
 ## 📌 Overview
 
 This project is a **production-grade Spring Boot microservice** that implements a complete **Order Management System** with payment, fulfillment, inventory reservation, Kafka event streaming, Redis caching, and distributed scheduling.
@@ -524,3 +525,19 @@ The system is designed to scale horizontally.
 - Fulfillment provider is external
 - Authentication/authorization omitted intentionally
 - Focus placed on backend transactional consistency
+
+## ## 📊 Performance Testing Report
+
+A comprehensive load test was executed against the **CA Order API** to evaluate system throughput, baseline latency characteristics, and stability thresholds under high-concurrency peak traffic conditions.
+
+### 💻 Infrastructure & Test Environment
+
+The entire testing ecosystem—including the application containers, downstream databases, and the load generator—was co-located on a single host machine via **Docker Compose**.
+
+* **Host Hardware:** Apple Silicon M1 (8 Cores)
+* **Host Physical Memory:** 16 GB RAM
+* **Host Operating System:** macOS
+* **Testing Profile:** 100 Concurrent Virtual Users (VUs) sustained for a fixed duration of 2 minutes.
+
+
+![performance-test.png](src/main/resources/images/performance-test.png)

@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       schema: ca_order_api
-      maximum-pool-size: 10
+      maximum-pool-size: 30
       minimum-idle: 3
       idle-timeout: 30000
       connection-timeout: 20000
