@@ -123,7 +123,7 @@ Supported events:
 
 ---
 
-### 💳 Payment Integration
+### 💳 Payment Integration (Mocked via wiremock)
 
 * OpenFeign payment gateway integration
 * Retry mechanism
@@ -132,7 +132,7 @@ Supported events:
 
 ---
 
-### 🚚 Fulfillment Integration
+### 🚚 Fulfillment Integration (Mocked via wiremock)
 
 * Fulfillment provider integration
 * Resilience4j protection
@@ -343,17 +343,7 @@ POST /api/v1/orders/{id}/status/transition
 
 ## ▶️ Running the Application
 
-### Prerequisites
-
-* Java 21
-* Docker
-* Docker Compose
-
----
-
-## 🐳 Docker
-
-### Run Full Stack
+## 🐳 Run Full Stack Using Docker
 
 ```bash
 docker-compose up --build
@@ -412,6 +402,19 @@ com.caorderapi
 
 ## ⚖️ Trade-offs & Design Decisions
 
+✅ What Was Prioritized
+
+The implementation intentionally focuses on the critical transactional backbone of an ordering system rather than implementing a full e-commerce platform.
+Main focus areas:
+
+* reliable order processing
+* Performance
+* Scalability
+* Reliability
+* production-grade backend engineering decisions
+* Clean architecture
+* Async integration support
+
 ### Redis Inventory Reservation
 
 * Improves inventory performance significantly
@@ -459,21 +462,6 @@ com.caorderapi
 * Redis improves inventory throughput significantly
 
 ---
-
-## ⚖️ Trade-offs & Design Decisions
-✅ What Was Prioritized
-
-The implementation intentionally focuses on the critical transactional backbone of an ordering system rather than implementing a full e-commerce platform.
-Main focus areas:
-
-* reliable order processing
-* Performance
-* Scalability
-* Reliability
-* production-grade backend engineering decisions
-* Clean architecture
-* Async integration support
----
 ## ❌ What Was Intentionally Simplified
 
 This challenge intentionally does NOT implement:
@@ -493,26 +481,6 @@ This challenge intentionally does NOT implement:
 The system is designed to scale horizontally.
 
 ---
-## 🔗 Future Improvements
-* CQRS + Event Sourcing
-* Dedicated Inventory Service
-* Saga orchestration
-* Kubernetes deployment
-* Observability stack
-* Distributed tracing
-* Multi-region failover
-* Dead-letter queues
-* Schema Registry
-* Rate limiting
-* API Gateway
----
-## Future System Design
-![future-ms-architecture.png](src/main/resources/images/future-ms-architecture.png)
-
----
-## Future Order Api System Design
-* ![future-order-api-flow.png](src/main/resources/images/future-order-api-flow.png)
----
 ## 📌 Assumptions
 - Single currency support for simplicity
 - Product catalog managed currently in order api but will be part of catalog microservice
@@ -521,6 +489,8 @@ The system is designed to scale horizontally.
 - Fulfillment provider is external(mocked)
 - Authentication/authorization omitted intentionally
 - Focus placed on backend transactional consistency
+
+---
 
 ## ## 📊 Performance Testing Report
 
@@ -537,3 +507,21 @@ The entire testing ecosystem—including the application containers, downstream 
 
 
 ![performance-test.png](src/main/resources/images/performance-test.png)
+
+---
+## 🔗 Future Improvements
+* CQRS + Event Sourcing
+* Dedicated Inventory Service
+* Saga orchestration
+* Kubernetes deployment
+* Authentication and Authorization
+* Dead-letter queues
+* Rate limiting
+* API Gateway
+---
+## Future System Design
+![future-ms-architecture.png](src/main/resources/images/future-ms-architecture.png)
+
+---
+## Future Order Api System Design
+* ![future-order-api-flow.png](src/main/resources/images/future-order-api-flow.png)
