@@ -25,8 +25,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,14 +42,21 @@ class OrderApiIntegrationTest {
 
     private static final String BASE_URL = "/api/v1/orders";
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
-    @Autowired private OrderRepository orderRepository;
-    @Autowired private ProductRepository productRepository;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
-    @MockitoBean private IInventoryCacheService inventoryCacheService;
-    @MockitoBean private PaymentGatewayClient paymentGatewayClient;
-    @MockitoBean private FulfillmentGatewayClient fulfillmentGatewayClient;
+    @MockitoBean
+    private IInventoryCacheService inventoryCacheService;
+    @MockitoBean
+    private PaymentGatewayClient paymentGatewayClient;
+    @MockitoBean
+    private FulfillmentGatewayClient fulfillmentGatewayClient;
 
     private UUID productId;
 
@@ -63,9 +69,9 @@ class OrderApiIntegrationTest {
         when(inventoryCacheService.getProduct(any(UUID.class)))
                 .thenAnswer(invocation -> {
                     UUID id = invocation.getArgument(0);
-                    return new ProductCacheDto(id, "SKU-INT", BigDecimal.valueOf(49.99), 100);
+                    return new ProductCacheDto(id, "SKU-INT", BigDecimal.valueOf(49.99), 100L);
                 });
-        when(inventoryCacheService.reserveStock(any(UUID.class), anyInt())).thenReturn(true);
+        when(inventoryCacheService.reserveStock(any(UUID.class), anyLong())).thenReturn(true);
         when(paymentGatewayClient.charge(any())).thenReturn(
                 new PaymentChargeResponse("tx-1", "order-1", "AUTHORISED", null, "AUTH-1"));
         when(fulfillmentGatewayClient.dispatch(any())).thenReturn(new FulfillmentResponse("ACCEPTED", "ful-1"));
@@ -76,7 +82,7 @@ class OrderApiIntegrationTest {
         product.setName("Integration Product");
         product.setDescription("Seeded product for API integration test");
         product.setPrice(BigDecimal.valueOf(49.99));
-        product.setStockQuantity(500);
+        product.setStockQuantity(500L);
         product.setActive(true);
         productRepository.save(product);
     }
@@ -156,7 +162,7 @@ class OrderApiIntegrationTest {
 
     @Test
     void createOrder_stockFailure_returnsBadRequest() throws Exception {
-        when(inventoryCacheService.reserveStock(any(UUID.class), anyInt())).thenReturn(false);
+        when(inventoryCacheService.reserveStock(any(UUID.class), anyLong())).thenReturn(false);
 
         mockMvc.perform(post(BASE_URL)
                         .header("Idempotency-Key", "idem-stock-fail")

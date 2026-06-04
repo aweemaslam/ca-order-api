@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -31,40 +30,40 @@ class RedisInventoryCacheServiceTest {
     @Test
     void reserveStock_sufficientStock_returnsTrue() {
         UUID pid = UUID.randomUUID();
-        when(redisTemplate.execute(any(DefaultRedisScript.class), anyList(), anyString()))
+        when(redisTemplate.execute(any(), anyList(), anyString()))
                 .thenReturn(1L);
-        assertThat(service.reserveStock(pid, 5)).isTrue();
+        assertThat(service.reserveStock(pid, 5L)).isTrue();
     }
 
     @Test
     void reserveStock_insufficientStock_returnsFalse() {
         UUID pid = UUID.randomUUID();
-        when(redisTemplate.execute(any(DefaultRedisScript.class), anyList(), anyString()))
+        when(redisTemplate.execute(any(), anyList(), anyString()))
                 .thenReturn(0L);
-        assertThat(service.reserveStock(pid, 5)).isFalse();
+        assertThat(service.reserveStock(pid, 5L)).isFalse();
     }
 
     @Test
     void reserveStock_keyMissing_returnsFalse() {
         UUID pid = UUID.randomUUID();
-        when(redisTemplate.execute(any(DefaultRedisScript.class), anyList(), anyString()))
+        when(redisTemplate.execute(any(), anyList(), anyString()))
                 .thenReturn(-1L);
-        assertThat(service.reserveStock(pid, 5)).isFalse();
+        assertThat(service.reserveStock(pid, 5L)).isFalse();
     }
 
     @Test
     void reserveStock_nullResult_returnsFalse() {
         UUID pid = UUID.randomUUID();
-        when(redisTemplate.execute(any(DefaultRedisScript.class), anyList(), anyString()))
+        when(redisTemplate.execute(any(), anyList(), anyString()))
                 .thenReturn(null);
-        assertThat(service.reserveStock(pid, 5)).isFalse();
+        assertThat(service.reserveStock(pid, 5L)).isFalse();
     }
 
     @Test
     void releaseStock_keyMissing_throwsProductNotFoundException() {
         UUID pid = UUID.randomUUID();
         when(redisTemplate.hasKey("product:" + pid)).thenReturn(false);
-        assertThatThrownBy(() -> service.releaseStock(pid, 2))
+        assertThatThrownBy(() -> service.releaseStock(pid, 2L))
                 .isInstanceOf(ProductNotFoundException.class);
     }
 
@@ -75,7 +74,7 @@ class RedisInventoryCacheServiceTest {
         when(redisTemplate.opsForHash()).thenReturn(hashOperations);
         when(hashOperations.increment(anyString(), eq("stockQuantity"), eq(2L))).thenReturn(12L);
 
-        service.releaseStock(pid, 2);
+        service.releaseStock(pid, 2L);
 
         verify(hashOperations).increment("product:" + pid, "stockQuantity", 2);
     }

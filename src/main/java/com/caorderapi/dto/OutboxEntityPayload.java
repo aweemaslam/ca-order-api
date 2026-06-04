@@ -5,7 +5,7 @@ import java.util.Map;
 
 public record OutboxEntityPayload(
         String status,
-        Map<String, Integer> productsWithQuantity
+        Map<String, Long> productsWithQuantity
 ) implements Serializable {
 }
 

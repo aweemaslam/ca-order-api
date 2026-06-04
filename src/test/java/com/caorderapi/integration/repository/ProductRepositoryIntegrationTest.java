@@ -30,9 +30,9 @@ class ProductRepositoryIntegrationTest {
 
     @Test
     void decrementStockIfAvailable_whenSufficientStock_updatesRow() {
-        ProductEntity product = saveProduct(10);
+        ProductEntity product = saveProduct(10L);
 
-        int updated = productRepository.decrementStockIfAvailable(product.getId(), 4);
+        int updated = productRepository.decrementStockIfAvailable(product.getId(), 4L);
 
         ProductEntity reloaded = productRepository.findById(product.getId()).orElseThrow();
         assertThat(updated).isEqualTo(1);
@@ -41,16 +41,16 @@ class ProductRepositoryIntegrationTest {
 
     @Test
     void decrementStockIfAvailable_whenInsufficientStock_doesNotUpdate() {
-        ProductEntity product = saveProduct(3);
+        ProductEntity product = saveProduct(3L);
 
-        int updated = productRepository.decrementStockIfAvailable(product.getId(), 5);
+        int updated = productRepository.decrementStockIfAvailable(product.getId(), 5L);
 
         ProductEntity reloaded = productRepository.findById(product.getId()).orElseThrow();
         assertThat(updated).isEqualTo(0);
         assertThat(reloaded.getStockQuantity()).isEqualTo(3);
     }
 
-    private ProductEntity saveProduct(int stock) {
+    private ProductEntity saveProduct(Long stock) {
         ProductEntity product = new ProductEntity();
         product.setId(UUID.randomUUID());
         product.setSku("SKU-PRD-" + UUID.randomUUID());

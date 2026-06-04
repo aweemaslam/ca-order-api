@@ -1,7 +1,7 @@
 package com.caorderapi.feign.port;
 
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 
 public interface PaymentPort {
-    void charge(Orders order);
+    void charge(OrderEntity order);
 }

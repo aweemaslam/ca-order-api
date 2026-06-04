@@ -4,7 +4,7 @@ import com.caorderapi.dto.CreateOrderItemRequest;
 import com.caorderapi.dto.ProductCacheDto;
 import com.caorderapi.exception.InsufficientStockException;
 import com.caorderapi.exception.ProductNotFoundException;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import com.caorderapi.service.IInventoryCacheService;
 import com.caorderapi.service.IStatusTransitionPolicyService;
 import com.caorderapi.util.OrderTestFactory;
@@ -26,30 +26,33 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OrderInventoryServiceImplTest {
 
-    @Mock private IInventoryCacheService inventoryCacheService;
-    @Mock private IStatusTransitionPolicyService statusPolicyService;
+    @Mock
+    private IInventoryCacheService inventoryCacheService;
+    @Mock
+    private IStatusTransitionPolicyService statusPolicyService;
 
-    @InjectMocks private OrderInventoryServiceImpl service;
+    @InjectMocks
+    private OrderInventoryServiceImpl service;
 
     @Test
     void reserveInventoryReturnsTotalAndAddsItems() {
         UUID productOne = UUID.randomUUID();
         UUID productTwo = UUID.randomUUID();
         when(inventoryCacheService.getProduct(productOne))
-                .thenReturn(new ProductCacheDto(productOne, "SKU-1", BigDecimal.TEN, 10));
+                .thenReturn(new ProductCacheDto(productOne, "SKU-1", BigDecimal.TEN, 10L));
         when(inventoryCacheService.getProduct(productTwo))
-                .thenReturn(new ProductCacheDto(productTwo, "SKU-2", BigDecimal.valueOf(5), 20));
-        when(inventoryCacheService.reserveStock(productOne, 2)).thenReturn(true);
-        when(inventoryCacheService.reserveStock(productTwo, 3)).thenReturn(true);
+                .thenReturn(new ProductCacheDto(productTwo, "SKU-2", BigDecimal.valueOf(5), 20L));
+        when(inventoryCacheService.reserveStock(productOne, 2L)).thenReturn(true);
+        when(inventoryCacheService.reserveStock(productTwo, 3L)).thenReturn(true);
         when(statusPolicyService.getOrderItemStatus("PENDING")).thenReturn(OrderTestFactory.pendingItemStatus());
 
-        Orders order = new Orders();
+        OrderEntity order = new OrderEntity();
         order.setId(UUID.randomUUID());
         order.setItems(new ArrayList<>());
 
         BigDecimal total = service.reserveInventory(order, List.of(
-                new CreateOrderItemRequest(productOne, 2),
-                new CreateOrderItemRequest(productTwo, 3)
+                new CreateOrderItemRequest(productOne, 2L),
+                new CreateOrderItemRequest(productTwo, 3L)
         ), "PENDING", "idem-1");
 
         assertThat(total).isEqualByComparingTo("35");
@@ -61,15 +64,15 @@ class OrderInventoryServiceImplTest {
     void reserveInventoryThrowsWhenStockReservationFails() {
         UUID productId = UUID.randomUUID();
         when(inventoryCacheService.getProduct(productId))
-                .thenReturn(new ProductCacheDto(productId, "SKU-404", BigDecimal.ONE, 0));
-        when(inventoryCacheService.reserveStock(productId, 2)).thenReturn(false);
+                .thenReturn(new ProductCacheDto(productId, "SKU-404", BigDecimal.ONE, 0L));
+        when(inventoryCacheService.reserveStock(productId, 2L)).thenReturn(false);
 
-        Orders order = new Orders();
+        OrderEntity order = new OrderEntity();
         order.setId(UUID.randomUUID());
         order.setItems(new ArrayList<>());
 
         assertThatThrownBy(() -> service.reserveInventory(order,
-                List.of(new CreateOrderItemRequest(productId, 2)),
+                List.of(new CreateOrderItemRequest(productId, 2L)),
                 "PENDING", "idem-2"))
                 .isInstanceOf(InsufficientStockException.class)
                 .hasMessageContaining("SKU-404");
@@ -81,12 +84,12 @@ class OrderInventoryServiceImplTest {
         when(inventoryCacheService.getProduct(productId))
                 .thenThrow(new ProductNotFoundException("missing"));
 
-        Orders order = new Orders();
+        OrderEntity order = new OrderEntity();
         order.setId(UUID.randomUUID());
         order.setItems(new ArrayList<>());
 
         assertThatThrownBy(() -> service.reserveInventory(order,
-                List.of(new CreateOrderItemRequest(productId, 1)),
+                List.of(new CreateOrderItemRequest(productId, 1L)),
                 "PENDING", "idem-3"))
                 .isInstanceOf(ProductNotFoundException.class);
     }
@@ -96,15 +99,15 @@ class OrderInventoryServiceImplTest {
         UUID productId = OrderTestFactory.PRODUCT_ID;
         ProductCacheDto product = OrderTestFactory.productCacheDto();
         when(inventoryCacheService.getProduct(productId)).thenReturn(product);
-        when(inventoryCacheService.reserveStock(productId, 2)).thenReturn(true);
+        when(inventoryCacheService.reserveStock(productId, 2L)).thenReturn(true);
         when(statusPolicyService.getOrderItemStatus("PENDING")).thenReturn(OrderTestFactory.pendingItemStatus());
 
-        Orders order = new Orders();
+        OrderEntity order = new OrderEntity();
         order.setId(UUID.randomUUID());
         order.setItems(new ArrayList<>());
 
         service.reserveInventory(order,
-                List.of(new CreateOrderItemRequest(productId, 2)),
+                List.of(new CreateOrderItemRequest(productId, 2L)),
                 "PENDING", "idem-4");
 
         var item = order.getItems().getFirst();

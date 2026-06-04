@@ -1,8 +1,11 @@
 package com.caorderapi.service.impl;
 
+import com.caorderapi.config.ApplicationStatusConfigurations;
 import com.caorderapi.dto.ProductCacheDto;
+import com.caorderapi.dto.ProductReservedQuantityDto;
 import com.caorderapi.exception.ProductNotFoundException;
 import com.caorderapi.model.ProductEntity;
+import com.caorderapi.repository.OrderItemRepository;
 import com.caorderapi.repository.ProductRepository;
 import com.caorderapi.service.IInventoryCacheService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +18,10 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,8 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
 
     private final ProductRepository productRepository;
     private final StringRedisTemplate redisTemplate;
+    private final OrderItemRepository orderItemRepository;
+    private final ApplicationStatusConfigurations applicationStatusConfigurations;
 
     @Override
     public void setStock(UUID productId, String sku, String price, String stockQuantity) {
@@ -38,7 +45,7 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
 
     // ATOMIC RESERVE (Lua script)
     @Override
-    public boolean reserveStock(UUID productId, int qty) {
+    public boolean reserveStock(UUID productId, Long qty) {
 
         String key = PRODUCT_KEY + productId;
 
@@ -59,7 +66,7 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
     }
 
     @Override
-    public void releaseStock(UUID productId, int qty) {
+    public void releaseStock(UUID productId, Long qty) {
 
         String key = PRODUCT_KEY + productId;
         if (!redisTemplate.hasKey(key)) {
@@ -96,20 +103,32 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
                 (String) Objects.requireNonNull(redisTemplate.opsForHash().get(key, "productId"))
         ), (String) redisTemplate.opsForHash().get(key, "sku"), new java.math.BigDecimal(
                 (String) Objects.requireNonNull(redisTemplate.opsForHash().get(key, "price"))
-        ), stockObj == null ? 0 : Integer.parseInt(stockObj.toString()));
+        ), stockObj == null ? 0 : Long.parseLong(stockObj.toString()));
 
     }
 
 
     @EventListener(ApplicationReadyEvent.class)
     private void loadProducts() {
+        Map<UUID, Long> reservedQuantities =
+                orderItemRepository.findQuantitiesForStatus(applicationStatusConfigurations.getOrderItems().getInitialStatus())
+                        .stream()
+                        .collect(Collectors.toMap(
+                                ProductReservedQuantityDto::productId,
+                                ProductReservedQuantityDto::reservedQuantity
+                        ));
         int page = 0;
         Page<ProductEntity> productPage;
-
         do {
             productPage = productRepository.findAll(PageRequest.of(page, PAGE_SIZE));
              for (ProductEntity product : productPage.getContent()) {
-                 setStock(product.getId(), product.getSku(), product.getPrice().toPlainString(), String.valueOf(product.getStockQuantity()));
+                 // get reserved stock from order Items
+                 long reserved =
+                         reservedQuantities.getOrDefault(product.getId(), 0L);
+                 // calculate available stock total - reserved
+                 long availableStock =
+                         product.getStockQuantity() - reserved;
+                 setStock(product.getId(), product.getSku(), product.getPrice().toPlainString(), String.valueOf(availableStock));
              }
              page++;
          } while (productPage.hasNext());

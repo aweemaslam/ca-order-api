@@ -4,7 +4,7 @@ import com.caorderapi.dto.CreateOrderItemRequest;
 import com.caorderapi.dto.ProductCacheDto;
 import com.caorderapi.exception.InsufficientStockException;
 import com.caorderapi.model.OrderItemEntity;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import com.caorderapi.service.IInventoryCacheService;
 import com.caorderapi.service.IOrderInventoryService;
 import com.caorderapi.service.IStatusTransitionPolicyService;
@@ -28,7 +28,7 @@ public class OrderInventoryServiceImpl implements IOrderInventoryService {
     @Override
     @Transactional
     public BigDecimal reserveInventory(
-            Orders order,
+            OrderEntity order,
             List<CreateOrderItemRequest> itemRequests,
             String initialItemStatus, String idempotencyKey) {
         BigDecimal totalAmount = BigDecimal.ZERO;

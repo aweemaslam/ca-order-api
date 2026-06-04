@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod +x gradlew
-RUN ./gradlew clean build -x test
+RUN --mount=type=cache,target=/root/.gradle chmod +x gradlew && ./gradlew clean build -x test
 
 FROM eclipse-temurin:21-jre
 

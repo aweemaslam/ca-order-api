@@ -1,7 +1,7 @@
 package com.caorderapi.service.mapper;
 
 import com.caorderapi.dto.OrderResponse;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import com.caorderapi.util.OrderTestFactory;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ class OrderMapperTest {
 
     @Test
     void toResponseMapsTopLevelFields() {
-        Orders order = OrderTestFactory.pendingOrder();
+        OrderEntity order = OrderTestFactory.pendingOrder();
 
         OrderResponse response = mapper.toResponse(order);
 
@@ -29,7 +29,7 @@ class OrderMapperTest {
 
     @Test
     void toResponseMapsItems() {
-        Orders order = OrderTestFactory.pendingOrder();
+        OrderEntity order = OrderTestFactory.pendingOrder();
 
         OrderResponse response = mapper.toResponse(order);
 
@@ -43,7 +43,7 @@ class OrderMapperTest {
 
     @Test
     void toResponseReturnsEmptyItemsForEmptyOrderItems() {
-        Orders order = OrderTestFactory.pendingOrder();
+        OrderEntity order = OrderTestFactory.pendingOrder();
         order.setItems(new ArrayList<>());
 
         OrderResponse response = mapper.toResponse(order);

@@ -20,12 +20,12 @@ public interface IInventoryCacheService {
      * succeeded, false when insufficient stock. Implementations may return false or
      * throw for missing product depending on policy.
      */
-    boolean reserveStock(UUID productId, int qty);
+    boolean reserveStock(UUID productId, Long qty);
 
     /**
      * Release previously reserved quantity back into the cached stock.
      */
-    void releaseStock(UUID productId, int qty);
+    void releaseStock(UUID productId, Long qty);
 
     /**
      * Read current stock value from the cache. Returns zero if not present.

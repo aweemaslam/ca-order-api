@@ -4,7 +4,7 @@ import com.caorderapi.dto.OutboxEntityPayload;
 import com.caorderapi.enums.AggregateType;
 import com.caorderapi.enums.OutboxEventType;
 import com.caorderapi.model.OrderItemEntity;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import com.caorderapi.model.OutboxEventEntity;
 import com.caorderapi.repository.OutboxEventRepository;
 import com.caorderapi.service.IOutboxEventService;
@@ -33,7 +33,7 @@ public class OutboxEventService implements IOutboxEventService {
     }
 
     @Override
-    public void saveStockReleaseOutbox(Orders order) {
+    public void saveStockReleaseOutbox(OrderEntity order) {
         saveOutbox(AggregateType.ORDER, order.getId().toString(), OutboxEventType.STOCK_RELEASE_REQUESTED,
                 new OutboxEntityPayload(
                         order.getStatus().getStatusCode(),
@@ -44,14 +44,14 @@ public class OutboxEventService implements IOutboxEventService {
                                 .collect(Collectors.toMap(
                                         item -> item.getProductId().toString(),
                                         OrderItemEntity::getQuantity,
-                                        Integer::sum
+                                        Long::sum
                                 ))
                 )
         );
     }
 
     @Override
-    public void saveStatusChangedOutbox(Orders order) {
+    public void saveStatusChangedOutbox(OrderEntity order) {
         saveOutbox(AggregateType.ORDER, order.getId().toString(), OutboxEventType.ORDER_STATUS_CHANGED,
                 new OutboxEntityPayload(
                         order.getStatus().getStatusCode(),
@@ -62,14 +62,14 @@ public class OutboxEventService implements IOutboxEventService {
                                 .collect(Collectors.toMap(
                                         item -> item.getProductId().toString(),
                                         OrderItemEntity::getQuantity,
-                                        Integer::sum
+                                        Long::sum
                                 ))
                 )
         );
     }
 
     @Override
-    public void saveOrderCreatedOutbox(Orders order) {
+    public void saveOrderCreatedOutbox(OrderEntity order) {
         saveOutbox(AggregateType.ORDER, order.getId().toString(), OutboxEventType.ORDER_CREATED,
                 new OutboxEntityPayload(
                         order.getStatus().getStatusCode(),
@@ -80,7 +80,7 @@ public class OutboxEventService implements IOutboxEventService {
                                 .collect(Collectors.toMap(
                                         item -> item.getProductId().toString(),
                                         OrderItemEntity::getQuantity,
-                                        Integer::sum
+                                        Long::sum
                                 ))
                 )
         );

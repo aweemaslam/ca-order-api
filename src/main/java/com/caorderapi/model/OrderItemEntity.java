@@ -20,13 +20,13 @@ public class OrderItemEntity extends BaseEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_items_parent"))
-    private Orders order;
+    private OrderEntity order;
 
     @Column(name = "product_id", nullable = false)
     private UUID productId;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private Long quantity;
 
     @Column(name = "price", nullable = false, precision = 12, scale = 2)
     private BigDecimal price;

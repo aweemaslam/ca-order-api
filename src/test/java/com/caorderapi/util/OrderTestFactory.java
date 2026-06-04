@@ -22,7 +22,8 @@ public final class OrderTestFactory {
     public static final String CURRENCY = "EUR";
     public static final String IDEMPOTENCY_KEY = "idem-001";
 
-    private OrderTestFactory() {}
+    private OrderTestFactory() {
+    }
 
     public static OrderStatusEntity pendingStatus() {
         OrderStatusEntity status = new OrderStatusEntity();
@@ -88,20 +89,20 @@ public final class OrderTestFactory {
         return s;
     }
 
-    public static OrderItemEntity orderItem(Orders order) {
+    public static OrderItemEntity orderItem(OrderEntity order) {
         OrderItemEntity item = new OrderItemEntity();
         item.setId(UUID.randomUUID());
         item.setOrder(order);
         item.setProductId(PRODUCT_ID);
-        item.setQuantity(2);
+        item.setQuantity(2L);
         item.setPrice(BigDecimal.valueOf(49.99));
         item.setActive(true);
         item.setStatus(pendingItemStatus());
         return item;
     }
 
-    public static Orders pendingOrder() {
-        Orders order = new Orders();
+    public static OrderEntity pendingOrder() {
+        OrderEntity order = new OrderEntity();
         order.setId(ORDER_ID);
         order.setCustomerEmail(CUSTOMER_EMAIL);
         order.setCurrency(CURRENCY);
@@ -119,12 +120,12 @@ public final class OrderTestFactory {
                 null,
                 CUSTOMER_EMAIL,
                 CURRENCY,
-                List.of(new CreateOrderItemRequest(PRODUCT_ID, 2))
+                List.of(new CreateOrderItemRequest(PRODUCT_ID, 2L))
         );
     }
 
     public static ProductCacheDto productCacheDto() {
-        return new ProductCacheDto(PRODUCT_ID, "SKU-001", BigDecimal.valueOf(49.99), 100);
+        return new ProductCacheDto(PRODUCT_ID, "SKU-001", BigDecimal.valueOf(49.99), 100L);
     }
 }
 

@@ -60,7 +60,7 @@ class OutboxEventRepositoryIntegrationTest {
         event.setAggregateId(UUID.randomUUID().toString());
         event.setAggregateType(AggregateType.ORDER);
         event.setEventType(type);
-        event.setPayload(new OutboxEntityPayload("PENDING", Map.of(UUID.randomUUID().toString(), 2)));
+        event.setPayload(new OutboxEntityPayload("PENDING", Map.of(UUID.randomUUID().toString(), 2L)));
         event.setProcessed(processed);
         event.setRetryCount(0);
         event.setActive(true);

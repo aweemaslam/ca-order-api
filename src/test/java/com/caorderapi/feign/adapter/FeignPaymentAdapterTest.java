@@ -4,7 +4,7 @@ import com.caorderapi.exception.ExternalServiceException;
 import com.caorderapi.feign.PaymentGatewayClient;
 import com.caorderapi.feign.dto.PaymentChargeResponse;
 import com.caorderapi.model.OrderStatusEntity;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,10 +28,10 @@ class FeignPaymentAdapterTest {
     @InjectMocks
     private FeignPaymentAdapter adapter;
 
-    private Orders buildOrder(BigDecimal amount) {
+    private OrderEntity buildOrder(BigDecimal amount) {
         OrderStatusEntity status = new OrderStatusEntity();
         status.setStatusCode("PENDING");
-        Orders order = new Orders();
+        OrderEntity order = new OrderEntity();
         order.setId(UUID.randomUUID());
         order.setCustomerEmail("customer@example.com");
         order.setTotalAmount(amount);

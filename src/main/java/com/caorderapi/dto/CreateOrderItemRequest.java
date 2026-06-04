@@ -11,7 +11,7 @@ public record CreateOrderItemRequest(
 
     @NotNull(message = "quantity is required")
     @Min(value = 1, message = "quantity must be >= 1")
-    Integer quantity
+    Long quantity
 ) {
 }
 

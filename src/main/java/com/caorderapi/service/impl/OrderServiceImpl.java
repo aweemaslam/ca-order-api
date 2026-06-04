@@ -7,7 +7,7 @@ import com.caorderapi.exception.InvalidOrderStateException;
 import com.caorderapi.exception.ResourceNotFoundException;
 import com.caorderapi.feign.port.FulfillmentPort;
 import com.caorderapi.feign.port.PaymentPort;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import com.caorderapi.repository.OrderRepository;
 import com.caorderapi.service.IOrderInventoryService;
 import com.caorderapi.service.IOrderService;
@@ -38,16 +38,17 @@ public class OrderServiceImpl implements IOrderService {
     private final IStatusTransitionPolicyService orderStatusPolicyService;
     private final ApplicationStatusConfigurations applicationStatusConfigurations;
     private final IOutboxEventService outboxEventService;
+
     @Override
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request, String idempotencyKey) {
         UUID requestedOrderId = request.orderId();
-        Orders order = new Orders();
+        OrderEntity order = new OrderEntity();
         order.setId(requestedOrderId != null ? requestedOrderId : UUID.randomUUID());
         try {
 
             if (requestedOrderId != null) {
-                Orders existingById = orderRepository.findById(requestedOrderId).orElse(null);
+                OrderEntity existingById = orderRepository.findById(requestedOrderId).orElse(null);
                 if (existingById != null) {
                     return orderMapper.toResponse(existingById);
                 }
@@ -55,7 +56,7 @@ public class OrderServiceImpl implements IOrderService {
 
             String normalizedKey = normalizeIdempotencyKey(idempotencyKey);
             if (normalizedKey != null) {
-                Orders existing = orderRepository.findByIdempotencyKey(normalizedKey).orElse(null);
+                OrderEntity existing = orderRepository.findByIdempotencyKey(normalizedKey).orElse(null);
                 if (existing != null) {
                     return orderMapper.toResponse(existing);
                 }
@@ -88,7 +89,7 @@ public class OrderServiceImpl implements IOrderService {
     @Cacheable(cacheNames = "ordersById", key = "#orderId")
     @Transactional(readOnly = true)
     public OrderResponse getOrder(UUID orderId) {
-        Orders order = orderRepository.findById(orderId)
+        OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
         return orderMapper.toResponse(order);
     }
@@ -102,7 +103,7 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     @Transactional
     public OrderResponse transitionOrderStatus(UUID orderId, String targetStatus) {
-        Orders order = orderRepository.findById(orderId)
+        OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
 
         String nextStatusCode = orderStatusPolicyService.requireActiveStatus(targetStatus);

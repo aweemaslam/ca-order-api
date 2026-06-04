@@ -62,7 +62,7 @@ class OutboxEventServiceTest {
         var order = OrderTestFactory.pendingOrder();
         // Add second item with same product
         var item2 = OrderTestFactory.orderItem(order);
-        item2.setQuantity(3);
+        item2.setQuantity(3L);
         order.getItems().add(item2);
 
         service.saveOrderCreatedOutbox(order);

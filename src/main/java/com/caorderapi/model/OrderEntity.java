@@ -19,7 +19,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class Orders extends BaseEntity implements Serializable {
+public class OrderEntity extends BaseEntity implements Serializable {
 
     @Id
     @Column(name = "order_id", nullable = false)

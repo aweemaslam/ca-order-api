@@ -1,11 +1,11 @@
 package com.caorderapi.service;
 
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 
 public interface IOutboxEventService {
-    void saveOrderCreatedOutbox(Orders order);
+    void saveOrderCreatedOutbox(OrderEntity order);
 
-    void saveStockReleaseOutbox(Orders order);
+    void saveStockReleaseOutbox(OrderEntity order);
 
-    void saveStatusChangedOutbox(Orders order);
+    void saveStatusChangedOutbox(OrderEntity order);
 }

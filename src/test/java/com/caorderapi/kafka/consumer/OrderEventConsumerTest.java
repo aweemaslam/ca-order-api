@@ -25,7 +25,7 @@ class OrderEventConsumerTest {
     private OrderEvent event(String eventType, String status) {
         String pid = UUID.randomUUID().toString();
         return new OrderEvent(UUID.randomUUID().toString(), "ORDER", eventType,
-                new OutboxEntityPayload(status, Map.of(pid, 3)));
+                new OutboxEntityPayload(status, Map.of(pid, 3L)));
     }
 
     @Test
@@ -33,30 +33,30 @@ class OrderEventConsumerTest {
         OrderEvent e = event("ORDER_STATUS_CHANGED", "PAID");
         consumer.consume(e);
         verify(productRepository, times(1))
-                .decrementStockIfAvailable(any(UUID.class), eq(3));
-        verify(redisInventoryCacheService, never()).releaseStock(any(), anyInt());
+                .decrementStockIfAvailable(any(UUID.class), eq(3L));
+        verify(redisInventoryCacheService, never()).releaseStock(any(), anyLong());
     }
 
     @Test
     void consume_orderStatusChangedCancelled_releasesRedisStock() {
         OrderEvent e = event("ORDER_STATUS_CHANGED", "CANCELLED");
         consumer.consume(e);
-        verify(redisInventoryCacheService, times(1)).releaseStock(any(UUID.class), eq(3));
-        verify(productRepository, never()).decrementStockIfAvailable(any(), anyInt());
+        verify(redisInventoryCacheService, times(1)).releaseStock(any(UUID.class), eq(3L));
+        verify(productRepository, never()).decrementStockIfAvailable(any(), anyLong());
     }
 
     @Test
     void consume_stockReleaseRequested_releasesRedisStock() {
         OrderEvent e = event("STOCK_RELEASE_REQUESTED", "PENDING");
         consumer.consume(e);
-        verify(redisInventoryCacheService, times(1)).releaseStock(any(UUID.class), eq(3));
+        verify(redisInventoryCacheService, times(1)).releaseStock(any(UUID.class), eq(3L));
     }
 
     @Test
     void consume_unknownEventType_doesNothing() {
         OrderEvent e = event("ORDER_CREATED", "PENDING");
         consumer.consume(e);
-        verify(redisInventoryCacheService, never()).releaseStock(any(), anyInt());
-        verify(productRepository, never()).decrementStockIfAvailable(any(), anyInt());
+        verify(redisInventoryCacheService, never()).releaseStock(any(), anyLong());
+        verify(productRepository, never()).decrementStockIfAvailable(any(), anyLong());
     }
 }

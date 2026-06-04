@@ -3,7 +3,7 @@ package com.caorderapi.service.mapper;
 import com.caorderapi.dto.OrderItemResponse;
 import com.caorderapi.dto.OrderResponse;
 import com.caorderapi.model.OrderItemEntity;
-import com.caorderapi.model.Orders;
+import com.caorderapi.model.OrderEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class OrderMapper {
 
-    public OrderResponse toResponse(Orders order) {
+    public OrderResponse toResponse(OrderEntity order) {
         List<OrderItemResponse> items = order.getItems().stream()
                 .map(this::toItemResponse)
                 .toList();

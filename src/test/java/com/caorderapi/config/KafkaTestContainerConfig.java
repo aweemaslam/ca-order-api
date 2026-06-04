@@ -9,7 +9,7 @@ import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @Configuration
-@Profile("kafka-it")
+@Profile("test")
 public class KafkaTestContainerConfig {
 
     @Container

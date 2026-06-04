@@ -31,9 +31,7 @@ public class ProductEntity extends BaseEntity implements Serializable {
     private BigDecimal price;
 
     @Column(name = "stock_quantity", nullable = false)
-    private Integer stockQuantity;
+    private Long stockQuantity;
 
-    @Version
-    private Integer version;
 }
 
