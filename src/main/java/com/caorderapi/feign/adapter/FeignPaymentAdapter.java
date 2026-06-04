@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +46,7 @@ public class FeignPaymentAdapter implements PaymentPort {
 
         return new PaymentChargeRequest(
                 order.getId().toString(),
-                order.getId().toString(), // need to be a secure token or PSP as required by payment api gateway vendor
+                UUID.randomUUID().toString(), // need to be a secure token or PSP as required by payment api gateway vendor
                 amountCents,
                 order.getCurrency(),
                 order.getCustomerEmail(),
