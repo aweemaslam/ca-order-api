@@ -89,7 +89,7 @@ class OrderServiceImplTest {
         CreateOrderRequest request = OrderTestFactory.createOrderRequest();
         OrderEntity order = OrderTestFactory.pendingOrder();
 
-        when(orderRepository.findByIdempotencyKey(any())).thenReturn(Optional.empty());
+        when(orderRepository.findByIdempotencyKeyAndActiveTrue(any())).thenReturn(Optional.empty());
         when(orderStatusPolicyService.requireActiveOrderStatus("PENDING"))
                 .thenReturn(OrderTestFactory.pendingStatus());
         when(orderInventoryService.reserveInventory(any(), any(), any(), any()))
@@ -110,7 +110,7 @@ class OrderServiceImplTest {
                 existing.getId(), OrderTestFactory.CUSTOMER_EMAIL, "EUR",
                 List.of(new CreateOrderItemRequest(OrderTestFactory.PRODUCT_ID, 1L)));
 
-        when(orderRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(orderRepository.findByIdAndActiveTrue(existing.getId())).thenReturn(Optional.of(existing));
         when(orderMapper.toResponse(existing)).thenReturn(stubResponse(existing.getId(), "PENDING"));
 
         OrderResponse result = service.createOrder(request, "any-key");
@@ -124,7 +124,7 @@ class OrderServiceImplTest {
         OrderEntity existing = OrderTestFactory.pendingOrder();
         CreateOrderRequest request = OrderTestFactory.createOrderRequest();
 
-        when(orderRepository.findByIdempotencyKey("idem-001")).thenReturn(Optional.of(existing));
+        when(orderRepository.findByIdempotencyKeyAndActiveTrue("idem-001")).thenReturn(Optional.of(existing));
         when(orderMapper.toResponse(existing)).thenReturn(stubResponse(existing.getId(), "PENDING"));
 
         OrderResponse result = service.createOrder(request, "idem-001");
@@ -138,7 +138,7 @@ class OrderServiceImplTest {
         stubAppStatuses();
         CreateOrderRequest request = OrderTestFactory.createOrderRequest();
 
-        when(orderRepository.findByIdempotencyKey(any())).thenReturn(Optional.empty());
+        when(orderRepository.findByIdempotencyKeyAndActiveTrue(any())).thenReturn(Optional.empty());
         when(orderStatusPolicyService.requireActiveOrderStatus("PENDING"))
                 .thenReturn(OrderTestFactory.pendingStatus());
         when(orderInventoryService.reserveInventory(any(), any(), any(), any()))
@@ -155,7 +155,7 @@ class OrderServiceImplTest {
         stubAppStatuses();
         CreateOrderRequest request = OrderTestFactory.createOrderRequest();
 
-        when(orderRepository.findByIdempotencyKey(any())).thenReturn(Optional.empty());
+        when(orderRepository.findByIdempotencyKeyAndActiveTrue(any())).thenReturn(Optional.empty());
         when(orderStatusPolicyService.requireActiveOrderStatus("PENDING"))
                 .thenReturn(OrderTestFactory.pendingStatus());
         when(orderInventoryService.reserveInventory(any(), any(), any(), any()))
@@ -173,7 +173,7 @@ class OrderServiceImplTest {
         stubAppStatuses();
         CreateOrderRequest request = OrderTestFactory.createOrderRequest();
 
-        when(orderRepository.findByIdempotencyKey(any())).thenReturn(Optional.empty());
+        when(orderRepository.findByIdempotencyKeyAndActiveTrue(any())).thenReturn(Optional.empty());
         when(orderStatusPolicyService.requireActiveOrderStatus("PENDING"))
                 .thenReturn(OrderTestFactory.pendingStatus());
         when(orderInventoryService.reserveInventory(any(), any(), any(), any()))
@@ -202,7 +202,7 @@ class OrderServiceImplTest {
         // Blank key should not trigger idempotency lookup
         service.createOrder(request, "   ");
 
-        verify(orderRepository, never()).findByIdempotencyKey(any());
+        verify(orderRepository, never()).findByIdempotencyKeyAndActiveTrue(any());
         ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
         verify(orderRepository).save(captor.capture());
         assertThat(captor.getValue().getIdempotencyKey()).isNull();
@@ -213,7 +213,7 @@ class OrderServiceImplTest {
     @Test
     void getOrder_found_returnsMappedResponse() {
         OrderEntity order = OrderTestFactory.pendingOrder();
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdAndActiveTrue(order.getId())).thenReturn(Optional.of(order));
         when(orderMapper.toResponse(order)).thenReturn(stubResponse(order.getId(), "PENDING"));
 
         OrderResponse result = service.getOrder(order.getId());
@@ -224,7 +224,7 @@ class OrderServiceImplTest {
     @Test
     void getOrder_notFound_throwsResourceNotFoundException() {
         UUID id = UUID.randomUUID();
-        when(orderRepository.findById(id)).thenReturn(Optional.empty());
+        when(orderRepository.findByIdAndActiveTrue(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getOrder(id))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -237,7 +237,7 @@ class OrderServiceImplTest {
     void payOrder_delegates_toTransitionWithPaidStatus() {
         stubAppStatuses();
         OrderEntity order = OrderTestFactory.pendingOrder();
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdAndActiveTrue(order.getId())).thenReturn(Optional.of(order));
         when(orderStatusPolicyService.requireActiveStatus("PAID")).thenReturn("PAID");
         when(orderStatusPolicyService.getOrderItemStatus("CONFIRMED"))
                 .thenReturn(OrderTestFactory.confirmedItemStatus());
@@ -257,7 +257,7 @@ class OrderServiceImplTest {
     void transitionOrderStatus_toPaid_chargesPaymentAndUpdatesItems() {
         stubAppStatuses();
         OrderEntity order = OrderTestFactory.pendingOrder();
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdAndActiveTrue(order.getId())).thenReturn(Optional.of(order));
         when(orderStatusPolicyService.requireActiveStatus("PAID")).thenReturn("PAID");
         when(orderStatusPolicyService.getOrderItemStatus("CONFIRMED"))
                 .thenReturn(OrderTestFactory.confirmedItemStatus());
@@ -277,7 +277,7 @@ class OrderServiceImplTest {
     void transitionOrderStatus_toFulfilled_dispatchesFulfillmentAndUpdatesItems() {
         stubAppStatuses();
         OrderEntity order = OrderTestFactory.pendingOrder();
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdAndActiveTrue(order.getId())).thenReturn(Optional.of(order));
         when(orderStatusPolicyService.requireActiveStatus("FULFILLED")).thenReturn("FULFILLED");
         when(orderStatusPolicyService.getOrderItemStatus("FULFILLED"))
                 .thenReturn(OrderTestFactory.fulfilledItemStatus());
@@ -297,7 +297,7 @@ class OrderServiceImplTest {
     void transitionOrderStatus_toCancelled_updatesItemsOnly() {
         stubAppStatuses();
         OrderEntity order = OrderTestFactory.pendingOrder();
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdAndActiveTrue(order.getId())).thenReturn(Optional.of(order));
         when(orderStatusPolicyService.requireActiveStatus("CANCELLED")).thenReturn("CANCELLED");
         when(orderStatusPolicyService.getOrderItemStatus("CANCELLED"))
                 .thenReturn(OrderTestFactory.cancelledItemStatus());
@@ -316,7 +316,7 @@ class OrderServiceImplTest {
     @Test
     void transitionOrderStatus_unknownStatus_throwsInvalidOrderStateException() {
         OrderEntity order = OrderTestFactory.pendingOrder();
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdAndActiveTrue(order.getId())).thenReturn(Optional.of(order));
         when(orderStatusPolicyService.requireActiveStatus("UNKNOWN")).thenReturn("UNKNOWN");
         doNothing().when(orderStatusPolicyService).assertTransitionAllowed(any(), any());
 
@@ -327,7 +327,7 @@ class OrderServiceImplTest {
     @Test
     void transitionOrderStatus_orderNotFound_throwsResourceNotFoundException() {
         UUID id = UUID.randomUUID();
-        when(orderRepository.findById(id)).thenReturn(Optional.empty());
+        when(orderRepository.findByIdAndActiveTrue(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.transitionOrderStatus(id, "PAID"))
                 .isInstanceOf(ResourceNotFoundException.class);

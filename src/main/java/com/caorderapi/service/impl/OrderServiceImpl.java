@@ -50,7 +50,7 @@ public class OrderServiceImpl implements IOrderService {
         try {
 
             if (requestedOrderId != null) {
-                OrderEntity existingById = orderRepository.findById(requestedOrderId).orElse(null);
+                OrderEntity existingById = orderRepository.findByIdAndActiveTrue(requestedOrderId).orElse(null);
                 if (existingById != null) {
                     return orderMapper.toResponse(existingById);
                 }
@@ -58,7 +58,7 @@ public class OrderServiceImpl implements IOrderService {
 
             String normalizedKey = StringUtils.normalizeKey(idempotencyKey);
             if (normalizedKey != null) {
-                OrderEntity existing = orderRepository.findByIdempotencyKey(normalizedKey).orElse(null);
+                OrderEntity existing = orderRepository.findByIdempotencyKeyAndActiveTrue(normalizedKey).orElse(null);
                 if (existing != null) {
                     return orderMapper.toResponse(existing);
                 }
@@ -91,7 +91,7 @@ public class OrderServiceImpl implements IOrderService {
     @Cacheable(cacheNames = "ordersById", key = "#orderId")
     @Transactional(readOnly = true)
     public OrderResponse getOrder(UUID orderId) {
-        OrderEntity order = orderRepository.findById(orderId)
+        OrderEntity order = orderRepository.findByIdAndActiveTrue(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
         return orderMapper.toResponse(order);
     }
@@ -106,7 +106,7 @@ public class OrderServiceImpl implements IOrderService {
     @Transactional
     @CacheEvict(cacheNames = "ordersById", key = "#orderId")
     public OrderResponse transitionOrderStatus(UUID orderId, String targetStatus) {
-        OrderEntity order = orderRepository.findById(orderId)
+        OrderEntity order = orderRepository.findByIdAndActiveTrue(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
 
         String nextStatusCode = orderStatusPolicyService.requireActiveStatus(targetStatus);

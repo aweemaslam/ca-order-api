@@ -111,7 +111,7 @@ class OrderApiIntegrationTest {
         String firstId = firstJson.get("id").asText();
 
         assertThat(secondJson.get("id").asText()).isEqualTo(firstId);
-        assertThat(orderRepository.findById(UUID.fromString(firstId))).isPresent();
+        assertThat(orderRepository.findByIdAndActiveTrue(UUID.fromString(firstId))).isPresent();
         assertThat(orderRepository.count()).isEqualTo(ordersBefore + 1);
 
         mockMvc.perform(get(BASE_URL + "/{id}", firstId))

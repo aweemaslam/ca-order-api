@@ -53,7 +53,7 @@ class OrderRepositoryIntegrationTest {
     void findByIdempotencyKeyReturnsOrderWhenPresent() {
         OrderEntity order = saveOrder("idem-integration-1", pending, Instant.now().minus(20, ChronoUnit.MINUTES));
 
-        var found = orderRepository.findByIdempotencyKey("idem-integration-1");
+        var found = orderRepository.findByIdempotencyKeyAndActiveTrue("idem-integration-1");
 
         assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(order.getId());
@@ -61,7 +61,7 @@ class OrderRepositoryIntegrationTest {
 
     @Test
     void findByIdempotencyKeyReturnsEmptyWhenMissing() {
-        var found = orderRepository.findByIdempotencyKey("missing-key");
+        var found = orderRepository.findByIdempotencyKeyAndActiveTrue("missing-key");
 
         assertThat(found).isEmpty();
     }
