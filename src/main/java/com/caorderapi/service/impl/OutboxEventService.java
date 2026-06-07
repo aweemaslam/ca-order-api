@@ -29,6 +29,7 @@ public class OutboxEventService implements IOutboxEventService {
         event.setProcessed(false);
         event.setRetryCount(0);
         event.setLastError(null);
+        event.setActive(true);
         outboxEventRepository.save(event);
     }
 

@@ -47,7 +47,7 @@ class OutboxEventRepositoryIntegrationTest {
         setCreatedAt(middle.getId(), Instant.parse("2026-01-01T00:01:00Z"));
         setCreatedAt(processed.getId(), Instant.parse("2026-01-01T00:02:00Z"));
 
-        var pending = outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc();
+        var pending = outboxEventRepository.findTop300ByProcessedFalseAndActiveTrueOrderByCreatedAtAsc();
 
         assertThat(pending).hasSize(2);
         assertThat(pending).extracting(OutboxEventEntity::getId)

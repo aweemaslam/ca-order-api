@@ -9,7 +9,7 @@ spring:
     hikari:
       schema: ca_order_api
       maximum-pool-size: 30
-      minimum-idle: 3
+      minimum-idle: 1
       idle-timeout: 30000
       connection-timeout: 20000
       max-lifetime: 1800000
@@ -95,7 +95,7 @@ app:
     cancelled-status: CANCELLED
 
   jobs:
-    outbox-publish-delay-ms: 2000
-    pending-order-cancellation-ms: 5000
+    outbox-publish-delay-ms: 1000
+    pending-order-cancellation-ms: 1000
 
 

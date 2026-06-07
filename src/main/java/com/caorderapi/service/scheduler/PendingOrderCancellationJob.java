@@ -30,7 +30,7 @@ public class PendingOrderCancellationJob {
     private final IOrderService orderService;
     private final OrderRepository orderRepository;
 
-    @Scheduled(fixedDelayString = "${app.jobs.pending-order-cancellation-ms:5000}")
+    @Scheduled(fixedDelayString = "${app.jobs.pending-order-cancellation-ms:1000}")
     @SchedulerLock(name = "pendingOrderCancellationJob", lockAtLeastFor = "PT2S", lockAtMostFor = "PT20S")
     @Transactional
     public void publish() {

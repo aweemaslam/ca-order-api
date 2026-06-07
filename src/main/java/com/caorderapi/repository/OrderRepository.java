@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     Optional<OrderEntity> findByIdempotencyKey(String idempotencyKey);
 
-    @Query("select o.id from OrderEntity o where o.status.statusCode = :status and o.createdAt < :cutoffTime")
+    @Query("select o.id from OrderEntity o where o.status.statusCode = :status and o.createdAt < :cutoffTime and o.active=true")
     Page<UUID> findPendingOrdersOlderThan(
             @Param("status") String status,
             @Param("cutoffTime") Instant cutoffTime, Pageable pageable

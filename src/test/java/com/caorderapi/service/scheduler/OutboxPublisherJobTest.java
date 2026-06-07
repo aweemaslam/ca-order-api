@@ -43,7 +43,7 @@ class OutboxPublisherJobTest {
 
     @Test
     void publish_noPendingEvents_doesNothing() {
-        when(outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc())
+        when(outboxEventRepository.findTop300ByProcessedFalseAndActiveTrueOrderByCreatedAtAsc())
                 .thenReturn(Collections.emptyList());
         job.publish();
         verify(producer, never()).publish(any());
@@ -52,7 +52,7 @@ class OutboxPublisherJobTest {
     @Test
     void publish_successfulEvent_marksProcessedTrue() {
         OutboxEventEntity event = buildEvent();
-        when(outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc())
+        when(outboxEventRepository.findTop300ByProcessedFalseAndActiveTrueOrderByCreatedAtAsc())
                 .thenReturn(List.of(event));
         doNothing().when(producer).publish(any());
 
@@ -65,7 +65,7 @@ class OutboxPublisherJobTest {
     @Test
     void publish_producerThrows_incrementsRetryCountAndRecordsError() {
         OutboxEventEntity event = buildEvent();
-        when(outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc())
+        when(outboxEventRepository.findTop300ByProcessedFalseAndActiveTrueOrderByCreatedAtAsc())
                 .thenReturn(List.of(event));
         doThrow(new RuntimeException("Kafka down")).when(producer).publish(any());
 
@@ -80,7 +80,7 @@ class OutboxPublisherJobTest {
     void publish_eventReachesMaxRetries_markedProcessedTrue() {
         OutboxEventEntity event = buildEvent();
         event.setRetryCount(4); // will become 5 = MAX
-        when(outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc())
+        when(outboxEventRepository.findTop300ByProcessedFalseAndActiveTrueOrderByCreatedAtAsc())
                 .thenReturn(List.of(event));
         doThrow(new RuntimeException("persistent failure")).when(producer).publish(any());
 
@@ -93,7 +93,7 @@ class OutboxPublisherJobTest {
     @Test
     void publish_buildsOrderEventCorrectly() {
         OutboxEventEntity event = buildEvent();
-        when(outboxEventRepository.findTop200ByProcessedFalseOrderByCreatedAtAsc())
+        when(outboxEventRepository.findTop300ByProcessedFalseAndActiveTrueOrderByCreatedAtAsc())
                 .thenReturn(List.of(event));
         doNothing().when(producer).publish(any());
 

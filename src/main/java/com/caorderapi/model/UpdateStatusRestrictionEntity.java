@@ -7,9 +7,7 @@ import lombok.Setter;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "update_status_restriction", uniqueConstraints = {
-        @UniqueConstraint(name = "uq_transition_rule", columnNames = {"current_status", "allowed_next_status"})
-})
+@Table(name = "update_status_restriction")
 @Getter
 @Setter
 public class UpdateStatusRestrictionEntity extends BaseEntity implements Serializable {
