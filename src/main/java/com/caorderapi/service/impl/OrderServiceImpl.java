@@ -14,7 +14,9 @@ import com.caorderapi.service.IOrderService;
 import com.caorderapi.service.IOutboxEventService;
 import com.caorderapi.service.IStatusTransitionPolicyService;
 import com.caorderapi.service.mapper.OrderMapper;
+import com.caorderapi.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +56,7 @@ public class OrderServiceImpl implements IOrderService {
                 }
             }
 
-            String normalizedKey = normalizeIdempotencyKey(idempotencyKey);
+            String normalizedKey = StringUtils.normalizeKey(idempotencyKey);
             if (normalizedKey != null) {
                 OrderEntity existing = orderRepository.findByIdempotencyKey(normalizedKey).orElse(null);
                 if (existing != null) {
@@ -102,6 +104,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "ordersById", key = "#orderId")
     public OrderResponse transitionOrderStatus(UUID orderId, String targetStatus) {
         OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
@@ -112,16 +115,14 @@ public class OrderServiceImpl implements IOrderService {
         switch (nextStatusCode.toUpperCase()) {
             case "PAID" -> {
                 paymentPort.charge(order);
-                order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
-                        .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getPayTargetStatus())));
+                transitionOrderItemStatus(order, applicationStatusConfigurations.getOrderItems().getPayTargetStatus());
             }
             case "FULFILLED" -> {
                 fulfillmentPort.fulfill(orderId);
-                order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
-                        .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getFulfillTargetStatus())));
+                transitionOrderItemStatus(order, applicationStatusConfigurations.getOrderItems().getFulfillTargetStatus());
             }
-            case "CANCELLED" -> order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
-                    .getOrderItemStatus(applicationStatusConfigurations.getOrderItems().getCancelledStatus())));
+            case "CANCELLED" ->
+                    transitionOrderItemStatus(order, applicationStatusConfigurations.getOrderItems().getCancelledStatus());
             default -> throw new InvalidOrderStateException("Invalid Order Status, cannot transition to %s status"
                     .formatted(targetStatus));
         }
@@ -132,11 +133,8 @@ public class OrderServiceImpl implements IOrderService {
         return orderMapper.toResponse(order);
     }
 
-    private String normalizeIdempotencyKey(String idempotencyKey) {
-        if (idempotencyKey == null) {
-            return null;
-        }
-        String normalized = idempotencyKey.trim();
-        return normalized.isEmpty() ? null : normalized;
+    private void transitionOrderItemStatus(OrderEntity order, String applicationStatusConfigurations) {
+        order.getItems().forEach(orderItem -> orderItem.setStatus(orderStatusPolicyService
+                .getOrderItemStatus(applicationStatusConfigurations)));
     }
 }

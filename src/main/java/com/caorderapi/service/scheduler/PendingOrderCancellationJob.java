@@ -33,7 +33,7 @@ public class PendingOrderCancellationJob {
     @Scheduled(fixedDelayString = "${app.jobs.pending-order-cancellation-ms:1000}")
     @SchedulerLock(name = "pendingOrderCancellationJob", lockAtLeastFor = "PT2S", lockAtMostFor = "PT20S")
     @Transactional
-    public void publish() {
+    public void processPendingOrders() {
         Pageable pageable = PageRequest.of(0, PAGE_SIZE);
         while (true) {
             Instant cutoff = Instant.now().minus(pendingOrderCancellationMs, ChronoUnit.MINUTES);

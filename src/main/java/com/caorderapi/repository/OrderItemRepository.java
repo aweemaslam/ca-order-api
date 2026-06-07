@@ -19,6 +19,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, UUID
              where oi.status.statusCode = :status and oi.active=true
              group by oi.productId
             """)
-    List<ProductReservedQuantityDto> findQuantitiesForStatus(@Param("status") String status);
+    List<ProductReservedQuantityDto> findProductQuantitiesForStatus(@Param("status") String status);
 }
 

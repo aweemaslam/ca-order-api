@@ -111,7 +111,7 @@ public class RedisInventoryCacheService implements IInventoryCacheService {
     @EventListener(ApplicationReadyEvent.class)
     private void loadProducts() {
         Map<UUID, Long> reservedQuantities =
-                orderItemRepository.findQuantitiesForStatus(applicationStatusConfigurations.getOrderItems().getInitialStatus())
+                orderItemRepository.findProductQuantitiesForStatus(applicationStatusConfigurations.getOrderItems().getInitialStatus())
                         .stream()
                         .collect(Collectors.toMap(
                                 ProductReservedQuantityDto::productId,

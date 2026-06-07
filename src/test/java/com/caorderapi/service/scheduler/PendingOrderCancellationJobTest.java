@@ -39,37 +39,37 @@ class PendingOrderCancellationJobTest {
     }
 
     @Test
-    void publish_noPendingOrders_doesNothing() {
+    void processPendingOrders_noPendingOrders_doesNothing() {
         when(orderRepository.findPendingOrdersOlderThan(eq("PENDING"), any(Instant.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(Collections.emptyList()));
 
-        job.publish();
+        job.processPendingOrders();
 
         verify(orderService, never()).transitionOrderStatus(any(), any());
     }
 
     @Test
-    void publish_pendingOrders_cancelledEach() {
+    void processPendingOrders_pendingOrders_cancelledEach() {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
         UUID id3 = UUID.randomUUID();
         when(orderRepository.findPendingOrdersOlderThan(eq("PENDING"), any(Instant.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(id1, id2, id3)));
 
-        job.publish();
+        job.processPendingOrders();
 
         verify(orderService, times(3)).transitionOrderStatus(any(UUID.class), eq("CANCELLED"));
     }
 
     @Test
-    void publish_paginates_untilNoPendingOrders() {
+    void processPendingOrders_paginates_untilNoPendingOrders() {
         UUID id1 = UUID.randomUUID();
         // First call returns a page with content but hasNext=false (single page)
         when(orderRepository.findPendingOrdersOlderThan(eq("PENDING"), any(Instant.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(id1)))
                 .thenReturn(new PageImpl<>(Collections.emptyList()));
 
-        job.publish();
+        job.processPendingOrders();
 
         verify(orderService, times(1)).transitionOrderStatus(id1, "CANCELLED");
     }
