@@ -9,10 +9,10 @@ spring:
     hikari:
       schema: ca_order_api
       maximum-pool-size: 30
-      minimum-idle: 1
-      idle-timeout: 30000
-      connection-timeout: 20000
-      max-lifetime: 1800000
+      minimum-idle: 10
+      idle-timeout: 10000
+      connection-timeout: 10000
+      max-lifetime: 600000
       pool-name: ca-orders-hikari-pool
   jpa:
     open-in-view: false
@@ -32,6 +32,10 @@ spring:
     redis:
       host: ${SPRING_REDIS_HOST:localhost}
       port: ${SPRING_REDIS_PORT:6379}
+
+  threads:
+    virtual:
+      enabled: true
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
@@ -60,7 +64,7 @@ spring:
 logging:
   level:
     com.caorderapi: INFO
-    org.hibernate.SQL: INFO
+    org.hibernate.SQL: WARN
 
 resilience4j:
   circuitbreaker:
@@ -95,7 +99,7 @@ app:
     cancelled-status: CANCELLED
 
   jobs:
-    outbox-publish-delay-ms: 1000
+    outbox-publish-delay-ms: 2000
     pending-order-cancellation-ms: 1000
 
 
