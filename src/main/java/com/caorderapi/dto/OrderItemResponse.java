@@ -6,7 +6,7 @@ import java.util.UUID;
 public record OrderItemResponse(
     UUID productId,
     Long quantity,
-    BigDecimal priceAtPurchaseCents,
+    BigDecimal priceAtPurchase,
     String status
 ) {
 }

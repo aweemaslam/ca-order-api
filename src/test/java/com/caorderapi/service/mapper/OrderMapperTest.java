@@ -22,7 +22,7 @@ class OrderMapperTest {
         assertThat(response.id()).isEqualTo(order.getId());
         assertThat(response.customerEmail()).isEqualTo(order.getCustomerEmail());
         assertThat(response.status()).isEqualTo(order.getStatus().getStatusCode());
-        assertThat(response.totalAmountCents()).isEqualByComparingTo(order.getTotalAmount());
+        assertThat(response.totalAmount()).isEqualByComparingTo(order.getTotalAmount());
         assertThat(response.currency()).isEqualTo(order.getCurrency());
         assertThat(response.createdAt()).isEqualTo(order.getCreatedAt());
     }
@@ -37,7 +37,7 @@ class OrderMapperTest {
         var item = response.items().getFirst();
         assertThat(item.productId()).isEqualTo(OrderTestFactory.PRODUCT_ID);
         assertThat(item.quantity()).isEqualTo(2);
-        assertThat(item.priceAtPurchaseCents()).isEqualByComparingTo("49.99");
+        assertThat(item.priceAtPurchase()).isEqualByComparingTo("49.99");
         assertThat(item.status()).isEqualTo("PENDING");
     }
 

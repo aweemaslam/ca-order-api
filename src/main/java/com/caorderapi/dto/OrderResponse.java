@@ -9,7 +9,7 @@ public record OrderResponse(
     UUID id,
     String customerEmail,
     String status,
-    BigDecimal totalAmountCents,
+    BigDecimal totalAmount,
     String currency,
     Instant createdAt,
     List<OrderItemResponse> items

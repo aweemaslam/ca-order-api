@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({ResourceNotFoundException.class, ProductNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
